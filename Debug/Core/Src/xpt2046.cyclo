@@ -7,6 +7,6 @@
 ../Core/Src/xpt2046.c:108:6:XPT2046_IsTouched	1
 ../Core/Src/xpt2046.c:114:6:XPT2046_GetTouchRaw	6
 ../Core/Src/xpt2046.c:147:6:XPT2046_GetTouchPixel	12
-../Core/Src/xpt2046.c:223:6:XPT2046_SetCalibration	2
-../Core/Src/xpt2046.c:230:6:XPT2046_GetCalibration	2
-../Core/Src/xpt2046.c:237:6:XPT2046_IRQHandler	1
+../Core/Src/xpt2046.c:252:6:XPT2046_SetCalibration	2
+../Core/Src/xpt2046.c:259:6:XPT2046_GetCalibration	2
+../Core/Src/xpt2046.c:266:6:XPT2046_IRQHandler	1

@@ -163,6 +163,45 @@ void ILI9488_WritePixels_RGB565(const uint16_t *buf, uint32_t count)
 /* ─────────────────────────────────────────────────────────────────────────
    Initialisation sequence
    ───────────────────────────────────────────────────────────────────────── */
+//void ILI9488_Init(SPI_HandleTypeDef *hspi)
+//{
+//    _hspi = hspi;
+//
+//    ILI9488_CS_Deassert();
+//    HAL_GPIO_WritePin(TOUCH_CS_GPIO_Port, TOUCH_CS_Pin, GPIO_PIN_SET);
+//
+//    _LED_Off();
+//    _RST_High(); HAL_Delay(5);
+//    _RST_Low();  HAL_Delay(20);
+//    _RST_High(); HAL_Delay(150);
+//
+//    { static const uint8_t p[] = {0x00,0x03,0x09,0x08,0x16,0x0A,0x3F,0x78,0x4C,0x09,0x0A,0x08,0x16,0x1A,0x0F};
+//      _WriteReg(ILI9488_CMD_PGAMCTRL, p, sizeof(p)); }
+//
+//    { static const uint8_t p[] = {0x00,0x16,0x19,0x03,0x0F,0x05,0x32,0x45,0x46,0x04,0x0E,0x0D,0x35,0x37,0x0F};
+//      _WriteReg(ILI9488_CMD_NGAMCTRL, p, sizeof(p)); }
+//
+//    { static const uint8_t p[] = {0x17, 0x15}; _WriteReg(ILI9488_CMD_PWRCTRL1,  p, 2); }
+//    { static const uint8_t p[] = {0x41};        _WriteReg(ILI9488_CMD_PWRCTRL2,  p, 1); }
+//    { static const uint8_t p[] = {0x00,0x12,0x80}; _WriteReg(ILI9488_CMD_VMCTRL1, p, 3); }
+////    { static const uint8_t p[] = {MADCTL_MX | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL,  p, 1);}
+////    { static const uint8_t p[] = {MADCTL_MV | MADCTL_MX | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL, p, 1); }
+//    { static const uint8_t p[] = {MADCTL_MV | MADCTL_MY | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL, p, 1); }
+//    { static const uint8_t p[] = {ILI9488_COLMOD_18BPP};   _WriteReg(ILI9488_CMD_COLMOD,  p, 1); }
+//    { static const uint8_t p[] = {0x00}; _WriteReg(0xB0, p, 1); }
+//    { static const uint8_t p[] = {0xA0}; _WriteReg(ILI9488_CMD_FRMCTR1, p, 1); }
+//    { static const uint8_t p[] = {0x02}; _WriteReg(ILI9488_CMD_INVCTR,  p, 1); }
+//    { static const uint8_t p[] = {0x02,0x02,0x3B}; _WriteReg(ILI9488_CMD_DFUNCTR, p, 3); }
+//    { static const uint8_t p[] = {0x00}; _WriteReg(ILI9488_CMD_IMGFUNCT, p, 1); }
+//    { static const uint8_t p[] = {0xA9,0x51,0x2C,0x02}; _WriteReg(ILI9488_CMD_ADJCTR3, p, 4); }
+//
+//    _WriteReg(ILI9488_CMD_SLPOUT, NULL, 0); HAL_Delay(120);
+//    _WriteReg(ILI9488_CMD_DISPON, NULL, 0); HAL_Delay(20);
+//
+//    _LED_On();
+//    ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//}
+
 void ILI9488_Init(SPI_HandleTypeDef *hspi)
 {
     _hspi = hspi;
@@ -177,16 +216,17 @@ void ILI9488_Init(SPI_HandleTypeDef *hspi)
 
     { static const uint8_t p[] = {0x00,0x03,0x09,0x08,0x16,0x0A,0x3F,0x78,0x4C,0x09,0x0A,0x08,0x16,0x1A,0x0F};
       _WriteReg(ILI9488_CMD_PGAMCTRL, p, sizeof(p)); }
-
     { static const uint8_t p[] = {0x00,0x16,0x19,0x03,0x0F,0x05,0x32,0x45,0x46,0x04,0x0E,0x0D,0x35,0x37,0x0F};
       _WriteReg(ILI9488_CMD_NGAMCTRL, p, sizeof(p)); }
 
     { static const uint8_t p[] = {0x17, 0x15}; _WriteReg(ILI9488_CMD_PWRCTRL1,  p, 2); }
     { static const uint8_t p[] = {0x41};        _WriteReg(ILI9488_CMD_PWRCTRL2,  p, 1); }
     { static const uint8_t p[] = {0x00,0x12,0x80}; _WriteReg(ILI9488_CMD_VMCTRL1, p, 3); }
-//    { static const uint8_t p[] = {MADCTL_MX | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL,  p, 1);}
-//    { static const uint8_t p[] = {MADCTL_MV | MADCTL_MX | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL, p, 1); }
-    { static const uint8_t p[] = {MADCTL_MV | MADCTL_MY | MADCTL_BGR}; _WriteReg(ILI9488_CMD_MADCTL, p, 1); }
+
+    /* *** CHANGED: MV+MX+MY+BGR = landscape, no X mirror *** */
+    { static const uint8_t p[] = {MADCTL_MV | MADCTL_MX | MADCTL_MY | MADCTL_BGR};
+      _WriteReg(ILI9488_CMD_MADCTL, p, 1); }
+
     { static const uint8_t p[] = {ILI9488_COLMOD_18BPP};   _WriteReg(ILI9488_CMD_COLMOD,  p, 1); }
     { static const uint8_t p[] = {0x00}; _WriteReg(0xB0, p, 1); }
     { static const uint8_t p[] = {0xA0}; _WriteReg(ILI9488_CMD_FRMCTR1, p, 1); }
@@ -205,32 +245,57 @@ void ILI9488_Init(SPI_HandleTypeDef *hspi)
 /* ─────────────────────────────────────────────────────────────────────────
    Orientation
    ───────────────────────────────────────────────────────────────────────── */
+//void ILI9488_SetOrientation(ILI9488_Orientation_t orient)
+//{
+//    uint8_t madctl = MADCTL_BGR;
+//    switch (orient) {
+//        default:
+////        case ILI9488_ORIENT_LANDSCAPE:
+////            madctl |= MADCTL_MX; _width = ILI9488_WIDTH;  _height = ILI9488_HEIGHT; break;
+////        case ILI9488_ORIENT_PORTRAIT:
+////            madctl |= MADCTL_MV; _width = ILI9488_HEIGHT; _height = ILI9488_WIDTH;  break;
+////        case ILI9488_ORIENT_LANDSCAPE_FLIP:
+////            madctl |= MADCTL_MY; _width = ILI9488_WIDTH;  _height = ILI9488_HEIGHT; break;
+////        case ILI9488_ORIENT_PORTRAIT_FLIP:
+////            madctl |= (MADCTL_MX|MADCTL_MY|MADCTL_MV); _width = ILI9488_HEIGHT; _height = ILI9488_WIDTH; break;
+//        	// AFTER
+//        case ILI9488_ORIENT_LANDSCAPE:
+//            madctl |= MADCTL_MV | MADCTL_MX;
+//            _width = 480u; _height = 320u; break;
+//        	case ILI9488_ORIENT_PORTRAIT:            // 320 wide, 480 tall
+//        	    madctl |= 0u;  /* no MV, no MX */
+//        	    _width = 320u; _height = 480u; break;
+//        	 case ILI9488_ORIENT_LANDSCAPE_FLIP:
+//        	            madctl |= MADCTL_MV | MADCTL_MY;
+//        	            _width = 480u; _height = 320u; break;
+//        	case ILI9488_ORIENT_PORTRAIT_FLIP:       // 320 wide, 480 tall, flipped
+//        	    madctl |= MADCTL_MX | MADCTL_MY;
+//        	    _width = 320u; _height = 480u; break;
+//    }
+//    _WriteReg(ILI9488_CMD_MADCTL, &madctl, 1);
+//}
+
 void ILI9488_SetOrientation(ILI9488_Orientation_t orient)
 {
     uint8_t madctl = MADCTL_BGR;
     switch (orient) {
         default:
-//        case ILI9488_ORIENT_LANDSCAPE:
-//            madctl |= MADCTL_MX; _width = ILI9488_WIDTH;  _height = ILI9488_HEIGHT; break;
-//        case ILI9488_ORIENT_PORTRAIT:
-//            madctl |= MADCTL_MV; _width = ILI9488_HEIGHT; _height = ILI9488_WIDTH;  break;
-//        case ILI9488_ORIENT_LANDSCAPE_FLIP:
-//            madctl |= MADCTL_MY; _width = ILI9488_WIDTH;  _height = ILI9488_HEIGHT; break;
-//        case ILI9488_ORIENT_PORTRAIT_FLIP:
-//            madctl |= (MADCTL_MX|MADCTL_MY|MADCTL_MV); _width = ILI9488_HEIGHT; _height = ILI9488_WIDTH; break;
-        	// AFTER
-        case ILI9488_ORIENT_LANDSCAPE:
-            madctl |= MADCTL_MV | MADCTL_MX;
-            _width = 480u; _height = 320u; break;
-        	case ILI9488_ORIENT_PORTRAIT:            // 320 wide, 480 tall
-        	    madctl |= 0u;  /* no MV, no MX */
-        	    _width = 320u; _height = 480u; break;
-        	 case ILI9488_ORIENT_LANDSCAPE_FLIP:
-        	            madctl |= MADCTL_MV | MADCTL_MY;
-        	            _width = 480u; _height = 320u; break;
-        	case ILI9488_ORIENT_PORTRAIT_FLIP:       // 320 wide, 480 tall, flipped
-        	    madctl |= MADCTL_MX | MADCTL_MY;
-        	    _width = 320u; _height = 480u; break;
+        case ILI9488_ORIENT_LANDSCAPE:           /* 480 wide, 320 tall – normal */
+            madctl |= MADCTL_MV | MADCTL_MX | MADCTL_MY;
+            _width = 480u; _height = 320u;
+            break;
+        case ILI9488_ORIENT_LANDSCAPE_FLIP:      /* 480 wide, 320 tall – 180° flip */
+            madctl |= MADCTL_MV;
+            _width = 480u; _height = 320u;
+            break;
+        case ILI9488_ORIENT_PORTRAIT:            /* 320 wide, 480 tall – normal */
+            madctl |= MADCTL_MX;
+            _width = 320u; _height = 480u;
+            break;
+        case ILI9488_ORIENT_PORTRAIT_FLIP:       /* 320 wide, 480 tall – 180° flip */
+            madctl |= MADCTL_MY;
+            _width = 320u; _height = 480u;
+            break;
     }
     _WriteReg(ILI9488_CMD_MADCTL, &madctl, 1);
 }

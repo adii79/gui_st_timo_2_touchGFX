@@ -104,7 +104,7 @@ int main(void)
 //    ILI9488_ORIENT_LANDSCAPE_FLIP,
 //    ILI9488_ORIENT_PORTRAIT_FLIP
 //	*/
-  ILI9488_SetOrientation( ILI9488_ORIENT_PORTRAIT_FLIP);
+  ILI9488_SetOrientation(ILI9488_ORIENT_LANDSCAPE);
   XPT2046_Init(&hspi1);
 
   /* TEST 1 — colour floods */

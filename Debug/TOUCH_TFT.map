@@ -2766,118 +2766,118 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
                 0x080007ec      0x130 ./Core/Src/ili9488.o
                 0x080007ec                ILI9488_Init
  .text.ILI9488_SetOrientation
-                0x0800091c       0xa8 ./Core/Src/ili9488.o
+                0x0800091c       0xb0 ./Core/Src/ili9488.o
                 0x0800091c                ILI9488_SetOrientation
  .text.ILI9488_SetBacklight
-                0x080009c4       0x22 ./Core/Src/ili9488.o
-                0x080009c4                ILI9488_SetBacklight
- *fill*         0x080009e6        0x2 
+                0x080009cc       0x22 ./Core/Src/ili9488.o
+                0x080009cc                ILI9488_SetBacklight
+ *fill*         0x080009ee        0x2 
  .text.ILI9488_FillScreen
-                0x080009e8       0x30 ./Core/Src/ili9488.o
-                0x080009e8                ILI9488_FillScreen
+                0x080009f0       0x30 ./Core/Src/ili9488.o
+                0x080009f0                ILI9488_FillScreen
  .text.ILI9488_DrawPixel
-                0x08000a18       0x84 ./Core/Src/ili9488.o
-                0x08000a18                ILI9488_DrawPixel
+                0x08000a20       0x84 ./Core/Src/ili9488.o
+                0x08000a20                ILI9488_DrawPixel
  .text.ILI9488_FillRect
-                0x08000a9c      0x238 ./Core/Src/ili9488.o
-                0x08000a9c                ILI9488_FillRect
+                0x08000aa4      0x238 ./Core/Src/ili9488.o
+                0x08000aa4                ILI9488_FillRect
  .text.ILI9488_DrawHLine
-                0x08000cd4       0x36 ./Core/Src/ili9488.o
-                0x08000cd4                ILI9488_DrawHLine
+                0x08000cdc       0x36 ./Core/Src/ili9488.o
+                0x08000cdc                ILI9488_DrawHLine
  .text.ILI9488_DrawVLine
-                0x08000d0a       0x38 ./Core/Src/ili9488.o
-                0x08000d0a                ILI9488_DrawVLine
+                0x08000d12       0x38 ./Core/Src/ili9488.o
+                0x08000d12                ILI9488_DrawVLine
  .text.ILI9488_DrawRect
-                0x08000d42       0x7a ./Core/Src/ili9488.o
-                0x08000d42                ILI9488_DrawRect
+                0x08000d4a       0x7a ./Core/Src/ili9488.o
+                0x08000d4a                ILI9488_DrawRect
  .text.ILI9488_DrawLine
-                0x08000dbc       0xe6 ./Core/Src/ili9488.o
-                0x08000dbc                ILI9488_DrawLine
+                0x08000dc4       0xe6 ./Core/Src/ili9488.o
+                0x08000dc4                ILI9488_DrawLine
  .text._DrawCirclePoints
-                0x08000ea2       0xe6 ./Core/Src/ili9488.o
+                0x08000eaa       0xe6 ./Core/Src/ili9488.o
  .text.ILI9488_DrawCircle
-                0x08000f88       0xb2 ./Core/Src/ili9488.o
-                0x08000f88                ILI9488_DrawCircle
+                0x08000f90       0xb2 ./Core/Src/ili9488.o
+                0x08000f90                ILI9488_DrawCircle
  .text.ILI9488_FillCircle
-                0x0800103a       0x8a ./Core/Src/ili9488.o
-                0x0800103a                ILI9488_FillCircle
+                0x08001042       0x8a ./Core/Src/ili9488.o
+                0x08001042                ILI9488_FillCircle
  .text.ILI9488_DrawChar
-                0x080010c4      0x1a0 ./Core/Src/ili9488.o
-                0x080010c4                ILI9488_DrawChar
+                0x080010cc      0x1a0 ./Core/Src/ili9488.o
+                0x080010cc                ILI9488_DrawChar
  .text.ILI9488_DrawString
-                0x08001264       0x64 ./Core/Src/ili9488.o
-                0x08001264                ILI9488_DrawString
- .text.main     0x080012c8      0x400 ./Core/Src/main.o
-                0x080012c8                main
+                0x0800126c       0x64 ./Core/Src/ili9488.o
+                0x0800126c                ILI9488_DrawString
+ .text.main     0x080012d0      0x400 ./Core/Src/main.o
+                0x080012d0                main
  .text.SystemClock_Config
-                0x080016c8       0xe0 ./Core/Src/main.o
-                0x080016c8                SystemClock_Config
+                0x080016d0       0xe0 ./Core/Src/main.o
+                0x080016d0                SystemClock_Config
  .text.MX_SPI1_Init
-                0x080017a8       0x6c ./Core/Src/main.o
+                0x080017b0       0x6c ./Core/Src/main.o
  .text.MX_GPIO_Init
-                0x08001814      0x120 ./Core/Src/main.o
+                0x0800181c      0x120 ./Core/Src/main.o
  .text.Error_Handler
-                0x08001934        0xc ./Core/Src/main.o
-                0x08001934                Error_Handler
+                0x0800193c        0xc ./Core/Src/main.o
+                0x0800193c                Error_Handler
  .text.HAL_MspInit
-                0x08001940       0x50 ./Core/Src/stm32f4xx_hal_msp.o
-                0x08001940                HAL_MspInit
+                0x08001948       0x50 ./Core/Src/stm32f4xx_hal_msp.o
+                0x08001948                HAL_MspInit
  .text.HAL_SPI_MspInit
-                0x08001990       0x90 ./Core/Src/stm32f4xx_hal_msp.o
-                0x08001990                HAL_SPI_MspInit
+                0x08001998       0x90 ./Core/Src/stm32f4xx_hal_msp.o
+                0x08001998                HAL_SPI_MspInit
  .text.NMI_Handler
-                0x08001a20        0x8 ./Core/Src/stm32f4xx_it.o
-                0x08001a20                NMI_Handler
- .text.HardFault_Handler
                 0x08001a28        0x8 ./Core/Src/stm32f4xx_it.o
-                0x08001a28                HardFault_Handler
- .text.MemManage_Handler
+                0x08001a28                NMI_Handler
+ .text.HardFault_Handler
                 0x08001a30        0x8 ./Core/Src/stm32f4xx_it.o
-                0x08001a30                MemManage_Handler
- .text.BusFault_Handler
+                0x08001a30                HardFault_Handler
+ .text.MemManage_Handler
                 0x08001a38        0x8 ./Core/Src/stm32f4xx_it.o
-                0x08001a38                BusFault_Handler
- .text.UsageFault_Handler
+                0x08001a38                MemManage_Handler
+ .text.BusFault_Handler
                 0x08001a40        0x8 ./Core/Src/stm32f4xx_it.o
-                0x08001a40                UsageFault_Handler
+                0x08001a40                BusFault_Handler
+ .text.UsageFault_Handler
+                0x08001a48        0x8 ./Core/Src/stm32f4xx_it.o
+                0x08001a48                UsageFault_Handler
  .text.SVC_Handler
-                0x08001a48        0xe ./Core/Src/stm32f4xx_it.o
-                0x08001a48                SVC_Handler
+                0x08001a50        0xe ./Core/Src/stm32f4xx_it.o
+                0x08001a50                SVC_Handler
  .text.DebugMon_Handler
-                0x08001a56        0xe ./Core/Src/stm32f4xx_it.o
-                0x08001a56                DebugMon_Handler
+                0x08001a5e        0xe ./Core/Src/stm32f4xx_it.o
+                0x08001a5e                DebugMon_Handler
  .text.PendSV_Handler
-                0x08001a64        0xe ./Core/Src/stm32f4xx_it.o
-                0x08001a64                PendSV_Handler
+                0x08001a6c        0xe ./Core/Src/stm32f4xx_it.o
+                0x08001a6c                PendSV_Handler
  .text.SysTick_Handler
-                0x08001a72        0xc ./Core/Src/stm32f4xx_it.o
-                0x08001a72                SysTick_Handler
- *fill*         0x08001a7e        0x2 
- .text._sbrk    0x08001a80       0x6c ./Core/Src/sysmem.o
-                0x08001a80                _sbrk
+                0x08001a7a        0xc ./Core/Src/stm32f4xx_it.o
+                0x08001a7a                SysTick_Handler
+ *fill*         0x08001a86        0x2 
+ .text._sbrk    0x08001a88       0x6c ./Core/Src/sysmem.o
+                0x08001a88                _sbrk
  .text.SystemInit
-                0x08001aec       0x24 ./Core/Src/system_stm32f4xx.o
-                0x08001aec                SystemInit
+                0x08001af4       0x24 ./Core/Src/system_stm32f4xx.o
+                0x08001af4                SystemInit
  .text._SPI_SetPrescaler
-                0x08001b10       0x6c ./Core/Src/xpt2046.o
+                0x08001b18       0x6c ./Core/Src/xpt2046.o
  .text._TOUCH_CS_Assert
-                0x08001b7c       0x18 ./Core/Src/xpt2046.o
+                0x08001b84       0x18 ./Core/Src/xpt2046.o
  .text._TOUCH_CS_Deassert
-                0x08001b94       0x18 ./Core/Src/xpt2046.o
+                0x08001b9c       0x18 ./Core/Src/xpt2046.o
  .text._ReadChannel
-                0x08001bac       0x60 ./Core/Src/xpt2046.o
+                0x08001bb4       0x60 ./Core/Src/xpt2046.o
  .text._SampleAvg
-                0x08001c0c       0x40 ./Core/Src/xpt2046.o
+                0x08001c14       0x40 ./Core/Src/xpt2046.o
  .text.XPT2046_Init
-                0x08001c4c       0x3c ./Core/Src/xpt2046.o
-                0x08001c4c                XPT2046_Init
+                0x08001c54       0x3c ./Core/Src/xpt2046.o
+                0x08001c54                XPT2046_Init
  .text.XPT2046_GetTouchRaw
-                0x08001c88       0xa6 ./Core/Src/xpt2046.o
-                0x08001c88                XPT2046_GetTouchRaw
- *fill*         0x08001d2e        0x2 
+                0x08001c90       0xa6 ./Core/Src/xpt2046.o
+                0x08001c90                XPT2046_GetTouchRaw
+ *fill*         0x08001d36        0x2 
  .text.XPT2046_GetTouchPixel
-                0x08001d30      0x154 ./Core/Src/xpt2046.o
-                0x08001d30                XPT2046_GetTouchPixel
+                0x08001d38      0x14c ./Core/Src/xpt2046.o
+                0x08001d38                XPT2046_GetTouchPixel
  .text.Reset_Handler
                 0x08001e84       0x50 ./Core/Startup/startup_stm32f429zgtx.o
                 0x08001e84                Reset_Handler
@@ -3399,37 +3399,37 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.macosaarch64_1.0.0.202602081740/tools/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libm.a
 LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.macosaarch64_1.0.0.202602081740/tools/bin/../lib/gcc/arm-none-eabi/14.3.1/thumb/v7e-m+fp/hard/libgcc.a
 
-.debug_info     0x00000000     0x8206
- .debug_info    0x00000000     0x138a ./Core/Src/ili9488.o
- .debug_info    0x0000138a      0xfaf ./Core/Src/main.o
- .debug_info    0x00002339      0x931 ./Core/Src/stm32f4xx_hal_msp.o
- .debug_info    0x00002c6a      0x112 ./Core/Src/stm32f4xx_it.o
- .debug_info    0x00002d7c      0x168 ./Core/Src/sysmem.o
- .debug_info    0x00002ee4      0x52e ./Core/Src/system_stm32f4xx.o
- .debug_info    0x00003412      0xaaf ./Core/Src/xpt2046.o
- .debug_info    0x00003ec1       0x30 ./Core/Startup/startup_stm32f429zgtx.o
- .debug_info    0x00003ef1      0x9ba ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_info    0x000048ab      0xdc2 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_info    0x0000566d      0x6db ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_info    0x00005d48      0x6be ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
- .debug_info    0x00006406      0x8db ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_info    0x00006ce1     0x1525 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
+.debug_info     0x00000000     0x8217
+ .debug_info    0x00000000     0x1395 ./Core/Src/ili9488.o
+ .debug_info    0x00001395      0xfaf ./Core/Src/main.o
+ .debug_info    0x00002344      0x931 ./Core/Src/stm32f4xx_hal_msp.o
+ .debug_info    0x00002c75      0x112 ./Core/Src/stm32f4xx_it.o
+ .debug_info    0x00002d87      0x168 ./Core/Src/sysmem.o
+ .debug_info    0x00002eef      0x52e ./Core/Src/system_stm32f4xx.o
+ .debug_info    0x0000341d      0xab5 ./Core/Src/xpt2046.o
+ .debug_info    0x00003ed2       0x30 ./Core/Startup/startup_stm32f429zgtx.o
+ .debug_info    0x00003f02      0x9ba ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_info    0x000048bc      0xdc2 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_info    0x0000567e      0x6db ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_info    0x00005d59      0x6be ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
+ .debug_info    0x00006417      0x8db ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_info    0x00006cf2     0x1525 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
-.debug_abbrev   0x00000000     0x1a26
+.debug_abbrev   0x00000000     0x1a52
  .debug_abbrev  0x00000000      0x2c2 ./Core/Src/ili9488.o
  .debug_abbrev  0x000002c2      0x2c7 ./Core/Src/main.o
  .debug_abbrev  0x00000589      0x1ae ./Core/Src/stm32f4xx_hal_msp.o
  .debug_abbrev  0x00000737       0x73 ./Core/Src/stm32f4xx_it.o
  .debug_abbrev  0x000007aa       0xbc ./Core/Src/sysmem.o
  .debug_abbrev  0x00000866      0x11a ./Core/Src/system_stm32f4xx.o
- .debug_abbrev  0x00000980      0x27d ./Core/Src/xpt2046.o
- .debug_abbrev  0x00000bfd       0x24 ./Core/Startup/startup_stm32f429zgtx.o
- .debug_abbrev  0x00000c21      0x214 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_abbrev  0x00000e35      0x31d ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_abbrev  0x00001152      0x1d4 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_abbrev  0x00001326      0x1cf ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
- .debug_abbrev  0x000014f5      0x2b7 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_abbrev  0x000017ac      0x27a ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
+ .debug_abbrev  0x00000980      0x2a9 ./Core/Src/xpt2046.o
+ .debug_abbrev  0x00000c29       0x24 ./Core/Startup/startup_stm32f429zgtx.o
+ .debug_abbrev  0x00000c4d      0x214 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_abbrev  0x00000e61      0x31d ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_abbrev  0x0000117e      0x1d4 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_abbrev  0x00001352      0x1cf ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
+ .debug_abbrev  0x00001521      0x2b7 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_abbrev  0x000017d8      0x27a ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
 .debug_aranges  0x00000000      0x810
  .debug_aranges
@@ -3573,21 +3573,21 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_macro   0x00022360      0x1de ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
  .debug_macro   0x0002253e      0x1c9 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
-.debug_line     0x00000000     0x95b5
- .debug_line    0x00000000     0x1018 ./Core/Src/ili9488.o
- .debug_line    0x00001018      0xa7d ./Core/Src/main.o
- .debug_line    0x00001a95      0x70a ./Core/Src/stm32f4xx_hal_msp.o
- .debug_line    0x0000219f      0x76c ./Core/Src/stm32f4xx_it.o
- .debug_line    0x0000290b      0x53a ./Core/Src/sysmem.o
- .debug_line    0x00002e45      0x733 ./Core/Src/system_stm32f4xx.o
- .debug_line    0x00003578      0xb0e ./Core/Src/xpt2046.o
- .debug_line    0x00004086       0x7a ./Core/Startup/startup_stm32f429zgtx.o
- .debug_line    0x00004100      0x9e8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_line    0x00004ae8      0xc7f ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_line    0x00005767      0xb2c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_line    0x00006293      0x91c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
- .debug_line    0x00006baf      0xdbc ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_line    0x0000796b     0x1c4a ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
+.debug_line     0x00000000     0x95ae
+ .debug_line    0x00000000     0x1016 ./Core/Src/ili9488.o
+ .debug_line    0x00001016      0xa7d ./Core/Src/main.o
+ .debug_line    0x00001a93      0x70a ./Core/Src/stm32f4xx_hal_msp.o
+ .debug_line    0x0000219d      0x76c ./Core/Src/stm32f4xx_it.o
+ .debug_line    0x00002909      0x53a ./Core/Src/sysmem.o
+ .debug_line    0x00002e43      0x733 ./Core/Src/system_stm32f4xx.o
+ .debug_line    0x00003576      0xb09 ./Core/Src/xpt2046.o
+ .debug_line    0x0000407f       0x7a ./Core/Startup/startup_stm32f429zgtx.o
+ .debug_line    0x000040f9      0x9e8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_line    0x00004ae1      0xc7f ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_line    0x00005760      0xb2c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_line    0x0000628c      0x91c ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
+ .debug_line    0x00006ba8      0xdbc ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_line    0x00007964     0x1c4a ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
 .debug_str      0x00000000    0xd1e36
  .debug_str     0x00000000    0xd1e36 ./Core/Src/ili9488.o

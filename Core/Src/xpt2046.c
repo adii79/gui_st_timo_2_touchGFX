@@ -190,7 +190,42 @@ bool XPT2046_GetTouchPixel(XPT2046_Point_t *pt)
 //        pt->y = (uint16_t)(((uint32_t)(rawY - TOUCH_RAW_Y_MIN) * ILI9488_HEIGHT)
 //                            / (TOUCH_RAW_Y_MAX - TOUCH_RAW_Y_MIN));
 //    }
+//    else {
+//        #define TOUCH_RAW_X_MIN  200u
+//        #define TOUCH_RAW_X_MAX  3900u
+//        #define TOUCH_RAW_Y_MIN  200u
+//        #define TOUCH_RAW_Y_MAX  3900u
+//
+//        if (rawX < TOUCH_RAW_X_MIN) rawX = TOUCH_RAW_X_MIN;
+//        if (rawX > TOUCH_RAW_X_MAX) rawX = TOUCH_RAW_X_MAX;
+//        if (rawY < TOUCH_RAW_Y_MIN) rawY = TOUCH_RAW_Y_MIN;
+//        if (rawY > TOUCH_RAW_Y_MAX) rawY = TOUCH_RAW_Y_MAX;
+//
+//        /* Landscape: XPT2046 raw-X is the display's Y axis, raw-Y is display's X axis.
+//         * Both are inverted relative to MADCTL_MV|MX orientation.
+//         * If one axis is still mirrored after flashing, remove just the
+//         * "(ILI9488_WIDTH-1u) -" or "(ILI9488_HEIGHT-1u) -" for that axis. */
+//
+//        /* rawY → pixel X, inverted */
+//        pt->x = (ILI9488_WIDTH - 1u) -
+//                (uint16_t)(((uint32_t)(rawY - TOUCH_RAW_Y_MIN) * ILI9488_WIDTH)
+//                           / (TOUCH_RAW_Y_MAX - TOUCH_RAW_Y_MIN));
+//
+//        /* rawX → pixel Y, inverted */
+//        pt->y = (ILI9488_HEIGHT - 1u) -
+//                (uint16_t)(((uint32_t)(rawX - TOUCH_RAW_X_MIN) * ILI9488_HEIGHT)
+//                           / (TOUCH_RAW_X_MAX - TOUCH_RAW_X_MIN));
+//    }
     else {
+        /* ── Uncalibrated fallback for LANDSCAPE (MV|MX|MY) ──────────────
+         * Physical touch panel axes are swapped vs display in landscape.
+         * MV swaps axes, MX+MY both invert — net effect on touch mapping:
+         *   rawY  →  pixel X  (no inversion needed with MX+MY together)
+         *   rawX  →  pixel Y  (inverted)
+         *
+         * If X is still mirrored: add    (ILI9488_WIDTH  - 1u) - ...
+         * If Y is still mirrored: remove (ILI9488_HEIGHT - 1u) - ...
+         * ─────────────────────────────────────────────────────────────── */
         #define TOUCH_RAW_X_MIN  200u
         #define TOUCH_RAW_X_MAX  3900u
         #define TOUCH_RAW_Y_MIN  200u
@@ -201,14 +236,8 @@ bool XPT2046_GetTouchPixel(XPT2046_Point_t *pt)
         if (rawY < TOUCH_RAW_Y_MIN) rawY = TOUCH_RAW_Y_MIN;
         if (rawY > TOUCH_RAW_Y_MAX) rawY = TOUCH_RAW_Y_MAX;
 
-        /* Landscape: XPT2046 raw-X is the display's Y axis, raw-Y is display's X axis.
-         * Both are inverted relative to MADCTL_MV|MX orientation.
-         * If one axis is still mirrored after flashing, remove just the
-         * "(ILI9488_WIDTH-1u) -" or "(ILI9488_HEIGHT-1u) -" for that axis. */
-
-        /* rawY → pixel X, inverted */
-        pt->x = (ILI9488_WIDTH - 1u) -
-                (uint16_t)(((uint32_t)(rawY - TOUCH_RAW_Y_MIN) * ILI9488_WIDTH)
+        /* rawY → pixel X, NOT inverted */
+        pt->x = (uint16_t)(((uint32_t)(rawY - TOUCH_RAW_Y_MIN) * ILI9488_WIDTH)
                            / (TOUCH_RAW_Y_MAX - TOUCH_RAW_Y_MIN));
 
         /* rawX → pixel Y, inverted */
