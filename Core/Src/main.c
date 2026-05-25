@@ -108,70 +108,70 @@ int main(void)
   XPT2046_Init(&hspi1);
 
   /* TEST 1 — colour floods */
-  ILI9488_FillScreen(ILI9488_COLOR_RED);   HAL_Delay(600);
-  ILI9488_FillScreen(ILI9488_COLOR_GREEN); HAL_Delay(600);
-  ILI9488_FillScreen(ILI9488_COLOR_BLUE);  HAL_Delay(600);
-  ILI9488_FillScreen(ILI9488_COLOR_WHITE); HAL_Delay(600);
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK); HAL_Delay(300);
-
-  /* TEST 2 — 8 colour bars */
-  {
-      uint16_t colours[8] = {
-          ILI9488_COLOR_RED,   ILI9488_COLOR_GREEN,
-          ILI9488_COLOR_BLUE,  ILI9488_COLOR_YELLOW,
-          ILI9488_COLOR_CYAN,  ILI9488_COLOR_MAGENTA,
-          ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK
-      };
-      for (uint8_t i = 0; i < 8; i++)
-          ILI9488_FillRect((uint16_t)(i * 60), 0, 60, ILI9488_HEIGHT, colours[i]);
-      HAL_Delay(1500);
-  }
-
-  /* TEST 3 — rectangles */
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_FillRect( 10,  10, 200, 100, ILI9488_COLOR_RED);
-  ILI9488_FillRect( 10, 130, 200, 100, ILI9488_COLOR_BLUE);
-  ILI9488_FillRect(230,  10, 200, 100, ILI9488_COLOR_GREEN);
-  ILI9488_DrawRect(230, 130, 200, 100, ILI9488_COLOR_YELLOW);
-  ILI9488_DrawRect( 10,  10, 420, 300, ILI9488_COLOR_WHITE);
-  HAL_Delay(1500);
-
-  /* TEST 4 — lines */
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_DrawLine(0, 0, 479, 319, ILI9488_COLOR_WHITE);
-  ILI9488_DrawLine(479, 0, 0, 319, ILI9488_COLOR_CYAN);
-  ILI9488_DrawHLine(0, 160, 480, ILI9488_COLOR_YELLOW);
-  ILI9488_DrawVLine(240, 0, 320, ILI9488_COLOR_YELLOW);
-  for (uint16_t x = 0; x <= 479; x += 40) {
-      ILI9488_DrawLine(240, 160, x,   0, ILI9488_COLOR_RED);
-      ILI9488_DrawLine(240, 160, x, 319, ILI9488_COLOR_RED);
-  }
-  HAL_Delay(1500);
-
-  /* TEST 5 — circles */
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_FillCircle(120,  80, 60, ILI9488_COLOR_RED);
-  ILI9488_FillCircle(360,  80, 60, ILI9488_COLOR_GREEN);
-  ILI9488_FillCircle(120, 240, 60, ILI9488_COLOR_BLUE);
-  ILI9488_FillCircle(360, 240, 60, ILI9488_COLOR_YELLOW);
-  ILI9488_DrawCircle(240, 160, 80, ILI9488_COLOR_WHITE);
-  HAL_Delay(1500);
-
-  /* TEST 6 — text */
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_DrawString( 10,  10, "ILI9488 TEST",       ILI9488_COLOR_WHITE,   ILI9488_COLOR_BLACK, 3);
-  ILI9488_DrawString( 10,  60, "STM32F429",           ILI9488_COLOR_YELLOW,  ILI9488_COLOR_BLACK, 2);
-  ILI9488_DrawString( 10,  90, "480 x 320  SPI",      ILI9488_COLOR_CYAN,    ILI9488_COLOR_BLACK, 2);
-  ILI9488_DrawString( 10, 120, "RGB666 18-bit",        ILI9488_COLOR_GREEN,   ILI9488_COLOR_BLACK, 2);
-  ILI9488_DrawString( 10, 160, "KMRTM35018-SPI v2.0", ILI9488_COLOR_MAGENTA, ILI9488_COLOR_BLACK, 1);
-  HAL_Delay(2000);
-
-  /* TEST 7 — backlight blink */
-  ILI9488_FillScreen(ILI9488_COLOR_WHITE);
-  for (uint8_t i = 0; i < 4; i++) {
-      ILI9488_SetBacklight(false); HAL_Delay(300);
-      ILI9488_SetBacklight(true);  HAL_Delay(300);
-  }
+//  ILI9488_FillScreen(ILI9488_COLOR_RED);   HAL_Delay(600);
+//  ILI9488_FillScreen(ILI9488_COLOR_GREEN); HAL_Delay(600);
+//  ILI9488_FillScreen(ILI9488_COLOR_BLUE);  HAL_Delay(600);
+//  ILI9488_FillScreen(ILI9488_COLOR_WHITE); HAL_Delay(600);
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK); HAL_Delay(300);
+//
+//  /* TEST 2 — 8 colour bars */
+//  {
+//      uint16_t colours[8] = {
+//          ILI9488_COLOR_RED,   ILI9488_COLOR_GREEN,
+//          ILI9488_COLOR_BLUE,  ILI9488_COLOR_YELLOW,
+//          ILI9488_COLOR_CYAN,  ILI9488_COLOR_MAGENTA,
+//          ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK
+//      };
+//      for (uint8_t i = 0; i < 8; i++)
+//          ILI9488_FillRect((uint16_t)(i * 60), 0, 60, ILI9488_HEIGHT, colours[i]);
+//      HAL_Delay(1500);
+//  }
+//
+//  /* TEST 3 — rectangles */
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//  ILI9488_FillRect( 10,  10, 200, 100, ILI9488_COLOR_RED);
+//  ILI9488_FillRect( 10, 130, 200, 100, ILI9488_COLOR_BLUE);
+//  ILI9488_FillRect(230,  10, 200, 100, ILI9488_COLOR_GREEN);
+//  ILI9488_DrawRect(230, 130, 200, 100, ILI9488_COLOR_YELLOW);
+//  ILI9488_DrawRect( 10,  10, 420, 300, ILI9488_COLOR_WHITE);
+//  HAL_Delay(1500);
+//
+//  /* TEST 4 — lines */
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//  ILI9488_DrawLine(0, 0, 479, 319, ILI9488_COLOR_WHITE);
+//  ILI9488_DrawLine(479, 0, 0, 319, ILI9488_COLOR_CYAN);
+//  ILI9488_DrawHLine(0, 160, 480, ILI9488_COLOR_YELLOW);
+//  ILI9488_DrawVLine(240, 0, 320, ILI9488_COLOR_YELLOW);
+//  for (uint16_t x = 0; x <= 479; x += 40) {
+//      ILI9488_DrawLine(240, 160, x,   0, ILI9488_COLOR_RED);
+//      ILI9488_DrawLine(240, 160, x, 319, ILI9488_COLOR_RED);
+//  }
+//  HAL_Delay(1500);
+//
+//  /* TEST 5 — circles */
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//  ILI9488_FillCircle(120,  80, 60, ILI9488_COLOR_RED);
+//  ILI9488_FillCircle(360,  80, 60, ILI9488_COLOR_GREEN);
+//  ILI9488_FillCircle(120, 240, 60, ILI9488_COLOR_BLUE);
+//  ILI9488_FillCircle(360, 240, 60, ILI9488_COLOR_YELLOW);
+//  ILI9488_DrawCircle(240, 160, 80, ILI9488_COLOR_WHITE);
+//  HAL_Delay(1500);
+//
+//  /* TEST 6 — text */
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//  ILI9488_DrawString( 10,  10, "ILI9488 TEST",       ILI9488_COLOR_WHITE,   ILI9488_COLOR_BLACK, 3);
+//  ILI9488_DrawString( 10,  60, "STM32F429",           ILI9488_COLOR_YELLOW,  ILI9488_COLOR_BLACK, 2);
+//  ILI9488_DrawString( 10,  90, "480 x 320  SPI",      ILI9488_COLOR_CYAN,    ILI9488_COLOR_BLACK, 2);
+//  ILI9488_DrawString( 10, 120, "RGB666 18-bit",        ILI9488_COLOR_GREEN,   ILI9488_COLOR_BLACK, 2);
+//  ILI9488_DrawString( 10, 160, "KMRTM35018-SPI v2.0", ILI9488_COLOR_MAGENTA, ILI9488_COLOR_BLACK, 1);
+//  HAL_Delay(2000);
+//
+//  /* TEST 7 — backlight blink */
+//  ILI9488_FillScreen(ILI9488_COLOR_WHITE);
+//  for (uint8_t i = 0; i < 4; i++) {
+//      ILI9488_SetBacklight(false); HAL_Delay(300);
+//      ILI9488_SetBacklight(true);  HAL_Delay(300);
+//  }
 
   /* TEST 8 — touch paint, prompt */
   ILI9488_FillScreen(ILI9488_COLOR_BLACK);
