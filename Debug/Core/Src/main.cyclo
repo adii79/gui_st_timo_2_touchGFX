@@ -1,6 +1,9 @@
-../Core/Src/main.c:70:5:main	1
-../Core/Src/main.c:223:6:SystemClock_Config	4
-../Core/Src/main.c:277:13:MX_SPI1_Init	2
-../Core/Src/main.c:315:13:MX_GPIO_Init	1
-../Core/Src/main.c:367:6:HAL_GPIO_EXTI_Callback	2
-../Core/Src/main.c:379:6:Error_Handler	1
+/Users/adityashigam/st/TOUCH_TFT/Drivers/lvgl/src/hal/../draw/../misc/../font/../misc/lv_area.h:294:26:lv_pct	2
+/Users/adityashigam/st/TOUCH_TFT/Drivers/lvgl/src/hal/../draw/sw/../../core/lv_obj_pos.h:199:20:lv_obj_center	1
+/Users/adityashigam/st/TOUCH_TFT/Drivers/lvgl/src/core/lv_disp.h:182:26:lv_scr_act	1
+../Core/Src/main.c:72:5:main	3
+../Core/Src/main.c:279:6:SystemClock_Config	4
+../Core/Src/main.c:333:13:MX_SPI1_Init	2
+../Core/Src/main.c:371:13:MX_GPIO_Init	1
+../Core/Src/main.c:423:6:HAL_GPIO_EXTI_Callback	2
+../Core/Src/main.c:435:6:Error_Handler	1

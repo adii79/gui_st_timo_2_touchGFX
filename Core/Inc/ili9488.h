@@ -22,6 +22,7 @@
 
 #ifndef ILI9488_H
 #define ILI9488_H
+#include "lvgl.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,6 +98,17 @@ void ILI9488_CopyFrameBufferBlockToLCD(const uint16_t *pSrc,
 /* Low-level helpers (exposed for XPT2046 bus sharing) */
 void ILI9488_CS_Assert(void);
 void ILI9488_CS_Deassert(void);
+
+//#ifndef ILI9488_H
+//#define ILI9488_H
+//
+//#include <stdint.h>
+//
+//void ILI9488_FlushDMA(lv_disp_drv_t *drv,
+//                      const lv_area_t *area,
+//                      lv_color_t *color_p);
+
+//#endif
 
 #ifdef __cplusplus
 }

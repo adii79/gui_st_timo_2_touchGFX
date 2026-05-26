@@ -18,13 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+extern void lv_port_disp_init(void);
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ili9488.h"
 #include "xpt2046.h"
 #include "ui_test.h"
 #include <stdio.h>
+#include "lvgl.h"
+#include "LCDController.h"
 /* USER CODE END Includes */
 /* USER CODE END Includes */
 
@@ -99,17 +101,69 @@ int main(void)
   HAL_GPIO_WritePin(TOUCH_CS_GPIO_Port,  TOUCH_CS_Pin,  GPIO_PIN_SET);
   HAL_Delay(10);
 
-  ILI9488_Init(&hspi1);
-//  /*  ILI9488_ORIENT_LANDSCAPE = 0,   /* 480 wide, 320 tall  (default) */
-//    ILI9488_ORIENT_PORTRAIT,        /* 320 wide, 480 tall             */
-//    ILI9488_ORIENT_LANDSCAPE_FLIP,
-//    ILI9488_ORIENT_PORTRAIT_FLIP
-//	*/
-  ILI9488_SetOrientation(ILI9488_ORIENT_LANDSCAPE);
-  XPT2046_Init(&hspi1);
+//  ILI9488_Init(&hspi1);
+////  /*  ILI9488_ORIENT_LANDSCAPE = 0,   /* 480 wide, 320 tall  (default) */
+////    ILI9488_ORIENT_PORTRAIT,        /* 320 wide, 480 tall             */
+////    ILI9488_ORIENT_LANDSCAPE_FLIP,
+////    ILI9488_ORIENT_PORTRAIT_FLIP
+////	*/
+//  ILI9488_SetOrientation(ILI9488_ORIENT_LANDSCAPE);
+//  XPT2046_Init(&hspi1);
 
 
-  UI_Test_Init();
+  lv_init();
+
+  lv_port_disp_init();
+
+  /* Change background color */
+//  lv_obj_set_style_bg_color(
+//      lv_scr_act(),
+//      lv_color_hex(0x003a57),
+//      LV_PART_MAIN
+//  );
+
+//  lv_obj_set_style_text_color(
+//      lv_scr_act(),
+//      lv_color_hex(0xffffff),
+//      LV_PART_MAIN
+//  );
+
+  /* Create spinner */
+  lv_obj_t * spinner = lv_spinner_create(lv_scr_act(), 1000, 60);
+
+  lv_obj_set_size(spinner, 64, 64);
+
+  lv_obj_align(
+      spinner,
+      LV_ALIGN_BOTTOM_MID,
+      0,
+      0
+  );
+
+  lv_obj_t * panel = lv_obj_create(lv_scr_act());
+     lv_obj_set_size(panel, 280, 120);
+     lv_obj_set_scroll_snap_x(panel, LV_SCROLL_SNAP_CENTER);
+     lv_obj_set_flex_flow(panel, LV_FLEX_FLOW_ROW);
+     lv_obj_align(panel, LV_ALIGN_CENTER, 0, 20);
+
+     uint32_t i;
+     for(i = 0; i < 10; i++) {
+         lv_obj_t * btn = lv_btn_create(panel);
+         lv_obj_set_size(btn, 150, lv_pct(100));
+
+         lv_obj_t * label = lv_label_create(btn);
+         if(i == 3) {
+             lv_label_set_text_fmt(label, "Panel %"LV_PRIu32"\nno snap", i);
+             lv_obj_clear_flag(btn, LV_OBJ_FLAG_SNAPPABLE);
+         }
+         else {
+             lv_label_set_text_fmt(label, "Panel %"LV_PRIu32, i);
+         }
+
+         lv_obj_center(label);
+     }
+
+//  UI_Test_Init();
 
 
 //
@@ -181,7 +235,7 @@ int main(void)
 //
 //  /* TEST 8 — touch paint, prompt */
 //  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_DrawString(50, 140, "Touch the screen!", ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK, 2);
+//  ILI9488_DrawString(50, 140, "Touch the screen!", ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK, 2);
   /* USER CODE END 2 */
 
   /* USER CODE END 2 */
@@ -210,7 +264,9 @@ int main(void)
 //	          HAL_Delay(20);
 //	      }
 
-	  UI_Test_Poll();
+//	  UI_Test_Poll();
+	  lv_timer_handler();
+	  HAL_Delay(5);
 	  /* USER CODE END 3 */
   }
   /* USER CODE END 3 */
