@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "ili9488.h"
 #include "xpt2046.h"
+#include "ui_test.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 /* USER CODE END Includes */
@@ -107,7 +108,12 @@ int main(void)
   ILI9488_SetOrientation(ILI9488_ORIENT_LANDSCAPE);
   XPT2046_Init(&hspi1);
 
-  /* TEST 1 — colour floods */
+
+  UI_Test_Init();
+
+
+//
+//  /* TEST 1 — colour floods */
 //  ILI9488_FillScreen(ILI9488_COLOR_RED);   HAL_Delay(600);
 //  ILI9488_FillScreen(ILI9488_COLOR_GREEN); HAL_Delay(600);
 //  ILI9488_FillScreen(ILI9488_COLOR_BLUE);  HAL_Delay(600);
@@ -172,9 +178,9 @@ int main(void)
 //      ILI9488_SetBacklight(false); HAL_Delay(300);
 //      ILI9488_SetBacklight(true);  HAL_Delay(300);
 //  }
-
-  /* TEST 8 — touch paint, prompt */
-  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
+//
+//  /* TEST 8 — touch paint, prompt */
+//  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
   ILI9488_DrawString(50, 140, "Touch the screen!", ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK, 2);
   /* USER CODE END 2 */
 
@@ -187,22 +193,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  XPT2046_Point_t pt;
-	      if (XPT2046_GetTouchPixel(&pt)) {
-	          static uint8_t cleared = 0;
-	          if (!cleared) { ILI9488_FillScreen(ILI9488_COLOR_BLACK); cleared = 1; }
+//	  XPT2046_Point_t pt;
+//	      if (XPT2046_GetTouchPixel(&pt)) {
+//	          static uint8_t cleared = 0;
+//	          if (!cleared) { ILI9488_FillScreen(ILI9488_COLOR_BLACK); cleared = 1; }
+//
+//	          ILI9488_DrawHLine((pt.x > 4) ? pt.x-4 : 0, pt.y, 9, ILI9488_COLOR_RED);
+//	          ILI9488_DrawVLine(pt.x, (pt.y > 4) ? pt.y-4 : 0, 9, ILI9488_COLOR_RED);
+//	          ILI9488_DrawPixel(pt.x, pt.y, ILI9488_COLOR_WHITE);
+//
+//	          uint16_t rX=0, rY=0, rZ=0;
+//	          XPT2046_GetTouchRaw(&rX, &rY, &rZ);
+//	          snprintf(msg, sizeof(msg), "X:%3d Y:%3d  raw(%4d,%4d) Z:%4d  ",
+//	                   pt.x, pt.y, rX, rY, rZ);
+//	          ILI9488_DrawString(4, 4, msg, ILI9488_COLOR_YELLOW, ILI9488_COLOR_BLACK, 1);
+//	          HAL_Delay(20);
+//	      }
 
-	          ILI9488_DrawHLine((pt.x > 4) ? pt.x-4 : 0, pt.y, 9, ILI9488_COLOR_RED);
-	          ILI9488_DrawVLine(pt.x, (pt.y > 4) ? pt.y-4 : 0, 9, ILI9488_COLOR_RED);
-	          ILI9488_DrawPixel(pt.x, pt.y, ILI9488_COLOR_WHITE);
-
-	          uint16_t rX=0, rY=0, rZ=0;
-	          XPT2046_GetTouchRaw(&rX, &rY, &rZ);
-	          snprintf(msg, sizeof(msg), "X:%3d Y:%3d  raw(%4d,%4d) Z:%4d  ",
-	                   pt.x, pt.y, rX, rY, rZ);
-	          ILI9488_DrawString(4, 4, msg, ILI9488_COLOR_YELLOW, ILI9488_COLOR_BLACK, 1);
-	          HAL_Delay(20);
-	      }
+	  UI_Test_Poll();
 	  /* USER CODE END 3 */
   }
   /* USER CODE END 3 */

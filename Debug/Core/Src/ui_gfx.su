@@ -1,0 +1,12 @@
+../Core/Src/ui_gfx.c:17:6:UI_DrawBitmap	56	static
+../Core/Src/ui_gfx.c:45:6:UI_DrawBitmapOpaque	56	static
+../Core/Src/ui_gfx.c:76:17:_ValToKnobX	24	static
+../Core/Src/ui_gfx.c:85:16:_KnobXToVal	24	static
+../Core/Src/ui_gfx.c:99:13:_DrawKnob	24	static
+../Core/Src/ui_gfx.c:120:13:_DrawTrack	40	static
+../Core/Src/ui_gfx.c:156:13:_DrawLabel	40	static
+../Core/Src/ui_gfx.c:179:13:_EraseKnob	40	static
+../Core/Src/ui_gfx.c:191:6:UI_Slider_Init	24	static
+../Core/Src/ui_gfx.c:207:6:UI_Slider_Draw	24	static
+../Core/Src/ui_gfx.c:217:9:UI_Slider_Touch	32	static
+../Core/Src/ui_gfx.c:258:6:UI_Slider_Release	16	static

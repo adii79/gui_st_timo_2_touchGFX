@@ -6,6 +6,8 @@
 "./Core/Src/syscalls.o"
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32f4xx.o"
+"./Core/Src/ui_gfx.o"
+"./Core/Src/ui_test.o"
 "./Core/Src/xpt2046.o"
 "./Core/Startup/startup_stm32f429zgtx.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o"
