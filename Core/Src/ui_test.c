@@ -56,10 +56,10 @@
 
 /* Sliders */
 #define SLD1_X          50u
-#define SLD1_Y         240u
+#define SLD1_Y         220u
 #define SLD1_W         100u
 
-#define SLD2_X          50u
+#define SLD2_X          170u
 #define SLD2_Y        220u
 #define SLD2_W         100u
 

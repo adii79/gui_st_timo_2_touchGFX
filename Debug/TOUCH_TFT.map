@@ -3983,24 +3983,24 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .debug_line    0x00008292      0xdbc ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
  .debug_line    0x0000904e     0x1c4a ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
-.debug_str      0x00000000    0xd27c9
- .debug_str     0x00000000    0xd27c9 ./Core/Src/ili9488.o
+.debug_str      0x00000000    0xd27ca
+ .debug_str     0x00000000    0xd27ca ./Core/Src/ili9488.o
                               0xcf536 (size before relaxing)
- .debug_str     0x000d27c9    0xcf7e4 ./Core/Src/main.o
- .debug_str     0x000d27c9    0xcbbcb ./Core/Src/stm32f4xx_hal_msp.o
- .debug_str     0x000d27c9    0xcb643 ./Core/Src/stm32f4xx_it.o
- .debug_str     0x000d27c9     0x76f3 ./Core/Src/sysmem.o
- .debug_str     0x000d27c9    0xcb5b5 ./Core/Src/system_stm32f4xx.o
- .debug_str     0x000d27c9    0xcf578 ./Core/Src/ui_gfx.o
- .debug_str     0x000d27c9    0xcf835 ./Core/Src/ui_test.o
- .debug_str     0x000d27c9    0xcf126 ./Core/Src/xpt2046.o
- .debug_str     0x000d27c9       0x6b ./Core/Startup/startup_stm32f429zgtx.o
- .debug_str     0x000d27c9    0xcc1d8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_str     0x000d27c9    0xcbf06 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_str     0x000d27c9    0xcb730 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_str     0x000d27c9    0xcb78d ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
- .debug_str     0x000d27c9    0xcb9e9 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_str     0x000d27c9    0xcbe60 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
+ .debug_str     0x000d27ca    0xcf7e4 ./Core/Src/main.o
+ .debug_str     0x000d27ca    0xcbbcb ./Core/Src/stm32f4xx_hal_msp.o
+ .debug_str     0x000d27ca    0xcb643 ./Core/Src/stm32f4xx_it.o
+ .debug_str     0x000d27ca     0x76f3 ./Core/Src/sysmem.o
+ .debug_str     0x000d27ca    0xcb5b5 ./Core/Src/system_stm32f4xx.o
+ .debug_str     0x000d27ca    0xcf578 ./Core/Src/ui_gfx.o
+ .debug_str     0x000d27ca    0xcf836 ./Core/Src/ui_test.o
+ .debug_str     0x000d27ca    0xcf126 ./Core/Src/xpt2046.o
+ .debug_str     0x000d27ca       0x6b ./Core/Startup/startup_stm32f429zgtx.o
+ .debug_str     0x000d27ca    0xcc1d8 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_str     0x000d27ca    0xcbf06 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_str     0x000d27ca    0xcb730 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_str     0x000d27ca    0xcb78d ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.o
+ .debug_str     0x000d27ca    0xcb9e9 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_str     0x000d27ca    0xcbe60 ./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.o
 
 .comment        0x00000000       0x43
  .comment       0x00000000       0x43 ./Core/Src/ili9488.o
