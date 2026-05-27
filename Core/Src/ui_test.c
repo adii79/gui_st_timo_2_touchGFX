@@ -55,13 +55,28 @@
 #define BTN_H           46u
 
 /* Sliders */
-#define SLD1_X          50u
-#define SLD1_Y         240u
+#define SLD1_X         150u
+#define SLD1_Y         50u
 #define SLD1_W         100u
 
-#define SLD2_X          50u
-#define SLD2_Y        220u
+#define SLD2_X         250u
+#define SLD2_Y        50u
 #define SLD2_W         100u
+
+
+#define BTN_X           210u
+#define BTN_Y           160u
+#define BTN_W          150u
+#define BTN_H           46u
+
+/* Sliders */
+#define SLD3_X         250u
+#define SLD3_Y         150u
+#define SLD3_W         100u
+
+#define SLD4_X         150u
+#define SLD4_Y        150u
+#define SLD4_W         100u
 
 /* Ball zone (right half) */
 #define BALL_ZONE_X    360u
@@ -78,6 +93,12 @@
 #define STATUS_Y       298u
 #define STATUS_W       460u
 #define STATUS_H        18u
+
+
+int aone = 0;
+int bone = 0;
+int cone = 0;
+int done= 0;
 
 /* ─── State ─────────────────────────────────────────────────────────────── */
 
@@ -132,7 +153,7 @@ static uint8_t _InButton(uint16_t x, uint16_t y)
 
 static void _Status(const char *msg)
 {
-    ILI9488_FillRect(STATUS_X, STATUS_Y, STATUS_W, STATUS_H, COL_BG);
+    // ILI9488_FillRect(STATUS_X, STATUS_Y, STATUS_W, STATUS_H, COL_BG);
     ILI9488_DrawString(STATUS_X, STATUS_Y, msg, COL_GREEN, COL_BG, 1u);
 }
 
@@ -206,14 +227,20 @@ void UI_Test_Init(void)
     /* ── Sliders ─────────────────────────────────────────────────────────── */
     UI_Slider_Init(&s_vol, SLD1_X, SLD1_Y, SLD1_W, 0, 100, 60);
     UI_Slider_Draw(&s_vol);
-
+    HAL_Delay(100);
     UI_Slider_Init(&s_brt, SLD2_X, SLD2_Y, SLD2_W, 0, 100, 30);
     UI_Slider_Draw(&s_brt);
-
+     HAL_Delay(100);
+    UI_Slider_Init(&s_vol, SLD3_X, SLD3_Y, SLD3_W, 0, 100, 60);
+    UI_Slider_Draw(&s_vol);
+    HAL_Delay(100);
+    UI_Slider_Init(&s_brt, SLD4_X, SLD4_Y, SLD4_W, 0, 100, 30);
+    UI_Slider_Draw(&s_brt);
+ HAL_Delay(100);
     /* ── Ball zone border ────────────────────────────────────────────────── */
-    ILI9488_DrawRect((uint16_t)(BALL_ZONE_X - 1u), (uint16_t)(BALL_ZONE_Y - 1u),
-                     (uint16_t)(BALL_ZONE_W + 2u), (uint16_t)(BALL_ZONE_H + 2u),
-                     COL_DIVIDER);
+    // ILI9488_DrawRect((uint16_t)(BALL_ZONE_X - 1u), (uint16_t)(BALL_ZONE_Y - 1u),
+    //                  (uint16_t)(BALL_ZONE_W + 2u), (uint16_t)(BALL_ZONE_H + 2u),
+    //                  COL_DIVIDER);
 
     /* ── Ball init ───────────────────────────────────────────────────────── */
     s_ball_x = (int16_t)(BALL_ZONE_X + BALL_ZONE_W / 2);

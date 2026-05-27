@@ -24,6 +24,7 @@
 #include "ili9488.h"
 #include "xpt2046.h"
 #include "ui_test.h"
+#include "ui_gfx.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 /* USER CODE END Includes */
@@ -109,7 +110,17 @@ int main(void)
   XPT2046_Init(&hspi1);
 
 
-  UI_Test_Init();
+  UI_Slider_t one;
+  one.track_w = 100;
+  one.track_x = 1000;
+  one .val_max = 99;
+  one.val_min = 30;
+  one.value = 320;
+  one._dragging;
+  int a = 0;
+  UI_Slider_Init(&one, 100, 200, 50, 0, 100, 60);
+    UI_Slider_Draw(&one);
+  // UI_Test_Init();
 
 
 //
@@ -181,7 +192,7 @@ int main(void)
 //
 //  /* TEST 8 — touch paint, prompt */
 //  ILI9488_FillScreen(ILI9488_COLOR_BLACK);
-  ILI9488_DrawString(50, 140, "Touch the screen!", ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK, 2);
+//  ILI9488_DrawString(50, 140, "Touch the screen!", ILI9488_COLOR_WHITE, ILI9488_COLOR_BLACK, 2);
   /* USER CODE END 2 */
 
   /* USER CODE END 2 */
@@ -210,7 +221,7 @@ int main(void)
 //	          HAL_Delay(20);
 //	      }
 
-	  UI_Test_Poll();
+//	  UI_Test_Poll();
 	  /* USER CODE END 3 */
   }
   /* USER CODE END 3 */
