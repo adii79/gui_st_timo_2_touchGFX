@@ -26,6 +26,7 @@
 #include "ui_test.h"
 #include "ui_gfx.h"
 #include <stdio.h>
+#include "ugfx.h"
 /* USER CODE END Includes */
 /* USER CODE END Includes */
 
@@ -110,20 +111,66 @@ int main(void)
   XPT2046_Init(&hspi1);
 
 
-  UI_Slider_t one;
-  one.track_w = 100;
-  one.track_x = 1000;
-  one .val_max = 99;
-  one.val_min = 30;
-  one.value = 320;
-  one._dragging;
-  int a = 0;
-  UI_Slider_Init(&one, 100, 200, 50, 0, 100, 60);
-    UI_Slider_Draw(&one);
+  // UI_Slider_t one;
+  // one.track_w = 100;
+  // one.track_x = 1000;
+  // one .val_max = 99;
+  // one.val_min = 30;
+  // one.value = 320;
+  // one._dragging;
+  // int a = 0;
+  // UI_Slider_Init(&one, 100, 200, 50, 0, 100, 60);
+  //   UI_Slider_Draw(&one);
   // UI_Test_Init();
+// 1. Init once after ILI9488_Init() and XPT2046_Init():
+  UGFX_Init();
 
+  UGFX_Begin();
 
-//
+  ugfx_slider_builder_t *sb =
+      Slider(0, 200, 100);
+
+  sb->frame(sb, 30, 200);
+  sb->origin(sb, 240, 40);
+  sb->direction(sb, UGFX_VERTICAL);
+
+  sb->build(sb);
+
+  ugfx_slider_builder_t *sb1 =
+      Slider(0, 200, 80);
+
+  sb1->frame(sb1, 30, 200);
+  sb1->origin(sb1, 300, 40);
+  sb1->direction(sb1, UGFX_VERTICAL);
+
+  sb1->build(sb1);
+
+  ugfx_slider_builder_t *sb2 =
+      Slider(0, 200, 160);
+
+  sb2->frame(sb2, 30, 200);
+  sb2->origin(sb2, 360, 40);
+  sb2->direction(sb2, UGFX_VERTICAL);
+
+  sb2->build(sb2);
+
+  ugfx_button_builder_t *bb =
+      Button("OK");
+
+  bb->frame(bb, 80, 50);
+  bb->origin(bb, 400, 40);
+
+  bb->build(bb);
+
+  ugfx_button_builder_t *bbb =
+      Button("TEST");
+
+  bbb->frame(bbb, 50, 50);
+  bbb->origin(bbb, 30, 120);
+
+  bbb->build(bbb);
+
+  UGFX_Commit();
 //  /* TEST 1 — colour floods */
 //  ILI9488_FillScreen(ILI9488_COLOR_RED);   HAL_Delay(600);
 //  ILI9488_FillScreen(ILI9488_COLOR_GREEN); HAL_Delay(600);
@@ -220,6 +267,8 @@ int main(void)
 //	          ILI9488_DrawString(4, 4, msg, ILI9488_COLOR_YELLOW, ILI9488_COLOR_BLACK, 1);
 //	          HAL_Delay(20);
 //	      }
+
+UGFX_Poll();
 
 //	  UI_Test_Poll();
 	  /* USER CODE END 3 */

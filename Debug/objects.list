@@ -6,6 +6,7 @@
 "./Core/Src/syscalls.o"
 "./Core/Src/sysmem.o"
 "./Core/Src/system_stm32f4xx.o"
+"./Core/Src/ugfx.o"
 "./Core/Src/ui_gfx.o"
 "./Core/Src/ui_test.o"
 "./Core/Src/xpt2046.o"
