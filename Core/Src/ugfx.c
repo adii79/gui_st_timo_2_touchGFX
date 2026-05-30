@@ -96,19 +96,33 @@ static uint16_t _SliderValToPos(const ugfx_slider_t *s)
     if (range == 0) return 0u;
 
     uint16_t length = (s->dir == UGFX_HORIZONTAL) ? s->w : s->h;
-    int32_t  v      = s->value - s->val_min;
+    int32_t  travel = (int32_t)(length - 2u * UGFX_KNOB_R);
 
+    int32_t v = s->value - s->val_min;
     if (v < 0)     v = 0;
     if (v > range) v = range;
 
-    return (uint16_t)((v * (int32_t)(length - 2u * UGFX_KNOB_R)) / range
-                      + UGFX_KNOB_R);
+    int32_t pos = (v * travel) / range + (int32_t)UGFX_KNOB_R;
+
+    /* Vertical: invert so high value = knob at TOP, low value = knob at BOTTOM */
+    if (s->dir == UGFX_VERTICAL) {
+        pos = (int32_t)length - pos - (int32_t)UGFX_KNOB_R;
+        if (pos < (int32_t)UGFX_KNOB_R)            pos = (int32_t)UGFX_KNOB_R;
+        if (pos > (int32_t)(length - UGFX_KNOB_R)) pos = (int32_t)(length - UGFX_KNOB_R);
+    }
+
+    return (uint16_t)pos;
 }
 
 static int32_t _SliderPosToVal(const ugfx_slider_t *s, int32_t pos)
 {
     uint16_t length = (s->dir == UGFX_HORIZONTAL) ? s->w : s->h;
     int32_t  travel = (int32_t)(length - 2u * UGFX_KNOB_R);
+
+    /* Vertical: invert touch position so dragging UP increases value */
+    if (s->dir == UGFX_VERTICAL) {
+        pos = (int32_t)length - pos - (int32_t)UGFX_KNOB_R;
+    }
 
     int32_t offset = pos - (int32_t)UGFX_KNOB_R;
     if (offset < 0)      offset = 0;
@@ -149,25 +163,29 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
         ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,       0xFFFFu);
 
     } else {
-        /* VERTICAL slider */
+        /* VERTICAL slider — knob at TOP when value is HIGH */
         uint16_t track_x = px + s->w / 2u - UGFX_TRACK_H / 2u;
+        uint16_t track_top    = py + UGFX_KNOB_R;
+        uint16_t track_len    = s->h - 2u * UGFX_KNOB_R;
 
-        ILI9488_FillRect(track_x, py + UGFX_KNOB_R,
-                         UGFX_TRACK_H, s->h - 2u * UGFX_KNOB_R,
-                         s->col_track);
+        /* Full track (dark) */
+        ILI9488_FillRect(track_x, track_top, UGFX_TRACK_H, track_len, s->col_track);
 
-        if (knob_pos < s->h - UGFX_KNOB_R) {
+        /* Fill: from knob downward to bottom of track (value represented below knob) */
+        uint16_t fill_top = py + knob_pos;
+        if (fill_top < py + s->h - UGFX_KNOB_R) {
             ILI9488_FillRect(track_x,
-                             py + knob_pos,
+                             fill_top,
                              UGFX_TRACK_H,
-                             s->h - 2u * UGFX_KNOB_R - (knob_pos - UGFX_KNOB_R),
+                             (py + s->h - UGFX_KNOB_R) - fill_top,
                              s->col_fill);
         }
 
+        /* Knob */
         uint16_t kx = px + s->w / 2u;
         uint16_t ky = py + knob_pos;
-        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,        s->col_knob);
-        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,       0xFFFFu);
+        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,   s->col_knob);
+        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,  0xFFFFu);
     }
 }
 

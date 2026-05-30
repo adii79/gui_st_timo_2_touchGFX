@@ -209,45 +209,45 @@ int main(void)
 
     /* ── Slider: Red (vertical, x=240) ──────────────────────────────────── */
     ugfx_slider_builder_t *sb = Slider(0, 255, 100);
-    sb->frame    (sb, 30, 200);
-    sb->origin   (sb, 240, 40);
+    sb->frame    (sb, 30, 150);
+    sb->origin   (sb, 40, 40);
     sb->direction(sb, UGFX_VERTICAL);
     sb->onChanged(sb, OnSliderR_Changed);   /* wire callback */
     g_sliderR = sb->build(sb);
 
     /* ── Slider: Green (vertical, x=300) ─────────────────────────────────── */
     ugfx_slider_builder_t *sb1 = Slider(0, 255, 80);
-    sb1->frame    (sb1, 30, 200);
-    sb1->origin   (sb1, 300, 40);
-    sb1->direction(sb1, UGFX_VERTICAL);
+    sb1->frame    (sb1, 300, 20);
+    sb1->origin   (sb1, 100, 40);
+    sb1->direction(sb1, UGFX_HORIZONTAL);
     sb1->onChanged(sb1, OnSliderG_Changed);
     g_sliderG = sb1->build(sb1);
 
     /* ── Slider: Blue (vertical, x=360) ──────────────────────────────────── */
     ugfx_slider_builder_t *sb2 = Slider(0, 255, 160);
-    sb2->frame    (sb2, 30, 200);
-    sb2->origin   (sb2, 360, 40);
-    sb2->direction(sb2, UGFX_VERTICAL);
+    sb2->frame    (sb2, 300, 20);
+    sb2->origin   (sb2, 100, 150);
+    sb2->direction(sb2, UGFX_HORIZONTAL);
     sb2->onChanged(sb2, OnSliderB_Changed);
     g_sliderB = sb2->build(sb2);
 
     /* ── Button: OK ──────────────────────────────────────────────────────── */
     ugfx_button_builder_t *bb = Button("OK");
     bb->frame (bb, 80, 50);
-    bb->origin(bb, 400, 40);
+    bb->origin(bb, 300, 270);
     bb->onTap (bb, OnOkPressed);            /* wire callback */
     bb->build (bb);
 
     /* ── Button: TEST ────────────────────────────────────────────────────── */
     ugfx_button_builder_t *bbb = Button("TEST");
     bbb->frame (bbb, 80, 50);
-    bbb->origin(bbb, 30, 120);
+    bbb->origin(bbb, 350, 270);
     bbb->onTap (bbb, OnTestPressed);        /* wire callback */
     bbb->build (bbb);
 
     ugfx_button_builder_t *bbb1 = Button("a++");
-        bbb1->frame (bbb1, 80, 50);
-        bbb1->origin(bbb1, 30, 190);
+        bbb1->frame (bbb1, 50, 50);
+        bbb1->origin(bbb1, 430, 270);
         bbb1->onTap (bbb1, OnTestPresseda);        /* wire callback */
         bbb1->build (bbb1);
 
