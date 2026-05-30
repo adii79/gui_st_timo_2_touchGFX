@@ -140,7 +140,13 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
     _TransformOrigin(s->x, s->y, &px, &py);
 
     /* Erase bounding box */
-    ILI9488_FillRect(px, py, s->w, s->h, UGFX_COL_BG);
+//    ILI9488_FillRect(px, py, s->w, s->h, UGFX_COL_BG);
+    /* NEW — pad by UGFX_KNOB_R on every side */
+    uint16_t erase_x = (px >= UGFX_KNOB_R) ? px - UGFX_KNOB_R : 0u;
+    uint16_t erase_y = (py >= UGFX_KNOB_R) ? py - UGFX_KNOB_R : 0u;
+    uint16_t erase_w = s->w + 2u * UGFX_KNOB_R;
+    uint16_t erase_h = s->h + 2u * UGFX_KNOB_R;
+    ILI9488_FillRect(erase_x, erase_y, erase_w, erase_h, UGFX_COL_BG);
 
     uint16_t knob_pos = _SliderValToPos(s);
 
@@ -238,14 +244,30 @@ void UGFX_IconDraw(ugfx_icon_t *ic)
    LABEL DRAWING
    ══════════════════════════════════════════════════════════════════════════ */
 
+//void UGFX_LabelDraw(ugfx_label_t *lbl)
+//{
+//    if (!lbl || !lbl->_active) return;
+//    uint16_t px, py;
+//    _TransformOrigin(lbl->x, lbl->y, &px, &py);
+//    ILI9488_DrawString(px, py, lbl->text, lbl->col_fg, lbl->col_bg, lbl->size);
+//    lbl->_dirty = false;
+//}
+
 void UGFX_LabelDraw(ugfx_label_t *lbl)
 {
     if (!lbl || !lbl->_active) return;
     uint16_t px, py;
     _TransformOrigin(lbl->x, lbl->y, &px, &py);
+
+    /* Erase old text area first (max possible label width) */
+    uint16_t erase_w = (uint16_t)(sizeof(lbl->text) * 6u * lbl->size);
+    uint16_t erase_h = (uint16_t)(7u * lbl->size);
+    ILI9488_FillRect(px, py, erase_w, erase_h, lbl->col_bg);
+
     ILI9488_DrawString(px, py, lbl->text, lbl->col_fg, lbl->col_bg, lbl->size);
     lbl->_dirty = false;
 }
+
 
 /* ══════════════════════════════════════════════════════════════════════════
    TOUCH HIT TESTS
