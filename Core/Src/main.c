@@ -65,6 +65,113 @@ static void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN PFP */
 
+
+
+//
+/* RGB565 colors */
+#define COL_BG         0xDEFB   // light gray
+#define COL_WHITE      0xFFFF
+#define COL_BLACK      0x0000
+#define COL_RED        0xF800
+#define COL_DARK_RED   0x7800
+#define COL_BLUE       0x001F
+#define COL_GRAY       0xC618
+#define COL_PINK       0xF81F
+#define COL_PURPLE     0x801F
+
+static void DrawSliderCircle(uint16_t x, uint16_t y, uint16_t fill)
+{
+    /* shadow */
+    ILI9488_FillCircle(x + 2, y + 2, 12, 0xBDF7);
+
+    /* outer white */
+    ILI9488_FillCircle(x, y, 12, COL_WHITE);
+
+    /* border */
+    ILI9488_DrawCircle(x, y, 12, COL_GRAY);
+
+    /* inner color */
+    ILI9488_FillCircle(x, y, 8, fill);
+}
+
+static void DrawStaticSliderImage(void)
+{
+    ILI9488_FillScreen(COL_BG);
+
+    /* =====================================================
+       TOP HUE BAR (rainbow look)
+       ===================================================== */
+    uint16_t x = 70;
+    uint16_t y = 50;
+    uint16_t w = 340;
+    uint16_t h = 28;
+
+    /* simple rainbow blocks */
+    ILI9488_FillRect(x +   0, y, 48, h, 0xF800); // red
+    ILI9488_FillRect(x +  48, y, 48, h, 0xFD20); // orange
+    ILI9488_FillRect(x +  96, y, 48, h, 0xFFE0); // yellow
+    ILI9488_FillRect(x + 144, y, 48, h, 0x07E0); // green
+    ILI9488_FillRect(x + 192, y, 48, h, 0x07FF); // cyan
+    ILI9488_FillRect(x + 240, y, 48, h, 0x001F); // blue
+    ILI9488_FillRect(x + 288, y, 52, h, 0xF81F); // magenta
+
+    DrawSliderCircle(360, 64, COL_PINK);
+
+    /* =====================================================
+       RED BAR
+       ===================================================== */
+    x = 70;
+    y = 130;
+    w = 340;
+    h = 28;
+
+    /* black -> red gradient */
+    for (uint16_t i = 0; i < w; i++)
+    {
+        uint8_t r = (i * 31) / w;
+        uint16_t c = (r << 11); // RGB565 red
+        ILI9488_DrawVLine(x + i, y, h, c);
+    }
+
+    DrawSliderCircle(410, 144, COL_RED);
+
+    /* =====================================================
+       BLUE / ALPHA BAR
+       ===================================================== */
+    x = 70;
+    y = 210;
+    w = 340;
+    h = 28;
+
+    /* checkerboard background */
+    for (uint16_t yy = 0; yy < h; yy += 10)
+    {
+        for (uint16_t xx = 0; xx < 50; xx += 10)
+        {
+            uint16_t c =
+                (((xx / 10) + (yy / 10)) & 1) ?
+                0xCE79 : 0xEF5D;
+
+            ILI9488_FillRect(x + xx, y + yy, 10, 10, c);
+        }
+    }
+
+    /* fade to blue */
+    for (uint16_t i = 0; i < w; i++)
+    {
+        uint8_t b = (i * 31) / w;
+        uint16_t c = b; // blue channel RGB565
+        ILI9488_DrawVLine(x + i, y, h, c);
+    }
+
+    DrawSliderCircle(240, 224, 0x001F);
+}
+
+
+
+//
+
+
 /* ══════════════════════════════════════════════════════════════════════════
    SLIDER CALLBACKS
    Called every time the user moves a slider.  value is already clamped.
@@ -210,7 +317,7 @@ int main(void)
     /* ── Slider: Red (vertical, x=240) ──────────────────────────────────── */
     ugfx_slider_builder_t *sb = Slider(0, 255, 100);
     sb->frame    (sb, 30, 150);
-    sb->origin   (sb, 40, 40);
+    sb->origin   (sb, 75, 40);
     sb->direction(sb, UGFX_VERTICAL);
     sb->onChanged(sb, OnSliderR_Changed);   /* wire callback */
     g_sliderR = sb->build(sb);
@@ -218,7 +325,7 @@ int main(void)
     /* ── Slider: Green (vertical, x=300) ─────────────────────────────────── */
     ugfx_slider_builder_t *sb1 = Slider(0, 255, 80);
     sb1->frame    (sb1, 300, 20);
-    sb1->origin   (sb1, 100, 40);
+    sb1->origin   (sb1, 170, 80);
     sb1->direction(sb1, UGFX_HORIZONTAL);
     sb1->onChanged(sb1, OnSliderG_Changed);
     g_sliderG = sb1->build(sb1);
@@ -226,7 +333,7 @@ int main(void)
     /* ── Slider: Blue (vertical, x=360) ──────────────────────────────────── */
     ugfx_slider_builder_t *sb2 = Slider(0, 255, 160);
     sb2->frame    (sb2, 300, 20);
-    sb2->origin   (sb2, 100, 150);
+    sb2->origin   (sb2, 170, 210);
     sb2->direction(sb2, UGFX_HORIZONTAL);
     sb2->onChanged(sb2, OnSliderB_Changed);
     g_sliderB = sb2->build(sb2);
@@ -252,13 +359,14 @@ int main(void)
         bbb1->build (bbb1);
 
     /* ── Label: status line ──────────────────────────────────────────────── */
-    ugfx_label_builder_t *lb = Label("Ready");
-    lb->origin(lb, 30, 280);
-    lb->size  (lb, 2);
-    g_label = lb->build(lb);
+//    ugfx_label_builder_t *lb = Label("Ready");
+//    lb->origin(lb, 30, 280);
+//    lb->size  (lb, 2);
+//    g_label = lb->build(lb);
 
     /* Draw everything for the first time */
     UGFX_Commit();
+    DrawStaticSliderImage();
 
     /* USER CODE END 2 */
 
