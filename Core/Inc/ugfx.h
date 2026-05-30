@@ -1,69 +1,12 @@
 /**
  ******************************************************************************
  * @file    ugfx.h
- * @brief   µGFX — Lightweight Declarative UI Library for STM32 + ILI9488
- *
- * SwiftUI-inspired builder API over ILI9488 + XPT2046.
- * No RTOS. No heap. All widgets in static pools.
- *
- * Quick-start
- * ──────────────────────────────────────────────────────────────────────────
- *
- *   // 1. Init once after ILI9488_Init() and XPT2046_Init():
- *   UGFX_Init();
- *
- *   // 2. Describe your screen (call once, or again to rebuild):
- *   UGFX_Begin();
- *
- *     ugfx_slider_t *vol =
- *         Slider(0, 100, 60)                  // min, max, initial value
- *           .frame(260, 18)                   // width, height
- *           .origin(40, 80)                   // x, y on screen
- *           .direction(UGFX_HORIZONTAL)
- *           .onChanged(my_vol_cb)             // optional callback
- *           .build();
- *
- *     ugfx_button_t *btn =
- *         Button("PRESS ME")
- *           .frame(150, 46)
- *           .origin(30, 160)
- *           .onTap(my_btn_cb)
- *           .build();
- *
- *     ugfx_icon_t *ico =
- *         Icon(&bmp_home)
- *           .origin(10, 10)
- *           .scale(2)
- *           .color(COL_CYAN)
- *           .build();
- *
- *     ugfx_label_t *lbl =
- *         Label("Hello")
- *           .origin(10, 200)
- *           .color(COL_WHITE)
- *           .size(2)
- *           .build();
- *
- *   UGFX_Commit();  // renders everything once
- *
- *   // 3. In the main loop:
- *   while (1) { UGFX_Poll(); }
- *
- * Touch masks
- * ──────────────────────────────────────────────────────────────────────────
- *   Each widget has a touch mask:  UGFX_TOUCH_NONE | UGFX_TOUCH_TAP |
- *                                   UGFX_TOUCH_DRAG | UGFX_TOUCH_BOTH
- *   Sliders default to DRAG, buttons default to TAP.
- *   Override with .touchMask(UGFX_TOUCH_BOTH).
- *
- * Rotation
- * ──────────────────────────────────────────────────────────────────────────
- *   UGFX_SetRotation(UGFX_ROT_0 | UGFX_ROT_90 | UGFX_ROT_180 | UGFX_ROT_270)
- *   Applies a coordinate transform to every widget origin + touch point.
- *   Sliders re-orient their drag axis automatically.
- *
+ * @brief   µGFX — declarative widget engine header
+ *          Supports: Slider, Button, Icon, Label
+ *          All callbacks receive a pointer to the widget that fired them.
  ******************************************************************************
  */
+
 #ifndef UGFX_H
 #define UGFX_H
 
@@ -71,48 +14,44 @@
 extern "C" {
 #endif
 
-#include "main.h"
-#include "ili9488.h"
-#include "xpt2046.h"
-#include "ui_gfx.h"   /* UI_Bitmap_t, UI_DrawBitmap */
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdio.h>
+#include "ili9488.h"
+#include "xpt2046.h"
+#include "ui_gfx.h"   /* UI_DrawBitmap, UI_Bitmap_t */
 
 /* ══════════════════════════════════════════════════════════════════════════
-   CONFIGURATION  — edit these to suit your project
+   POOL SIZES  — increase if you need more widgets
    ══════════════════════════════════════════════════════════════════════════ */
-
-#define UGFX_MAX_SLIDERS    16u
-#define UGFX_MAX_BUTTONS    16u
-#define UGFX_MAX_ICONS      16u
-#define UGFX_MAX_LABELS     16u
-
-/* Default theme colours (RGB565) */
-#define UGFX_COL_BG         0x0000u   /* screen background                  */
-#define UGFX_COL_TRACK      0x2104u   /* slider track                       */
-#define UGFX_COL_KNOB       0x07FFu   /* slider knob (cyan)                 */
-#define UGFX_COL_FILL       0x0379u   /* slider fill (dark cyan)            */
-#define UGFX_COL_BTN_IDLE   0x2104u   /* button face idle                   */
-#define UGFX_COL_BTN_PRESS  0x4228u   /* button face pressed                */
-#define UGFX_COL_BTN_BORDER 0xFFFFu   /* button border idle                 */
-#define UGFX_COL_BTN_TXT    0xFFFFu   /* button label                       */
-#define UGFX_COL_LABEL      0xFFFFu   /* default label colour               */
-
-/* Slider geometry */
-#define UGFX_KNOB_R         9u        /* knob radius (pixels)               */
-#define UGFX_TRACK_H        4u        /* track thickness                    */
+#define UGFX_MAX_SLIDERS   8u
+#define UGFX_MAX_BUTTONS   8u
+#define UGFX_MAX_ICONS     8u
+#define UGFX_MAX_LABELS    8u
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ENUMS
+   STYLE CONSTANTS  — edit to restyle everything at once
+   ══════════════════════════════════════════════════════════════════════════ */
+#define UGFX_KNOB_R        12u          /* slider knob radius, pixels       */
+#define UGFX_TRACK_H        4u          /* slider track thickness, pixels   */
+
+/* Colour palette (RGB565) */
+#define UGFX_COL_BG         0x0000u     /* background fill (erase)          */
+#define UGFX_COL_TRACK      0x4208u     /* slider track (dark grey)         */
+#define UGFX_COL_FILL       0x051Fu     /* slider filled region (blue)      */
+#define UGFX_COL_KNOB       0xFFFFu     /* slider knob (white)              */
+#define UGFX_COL_LABEL      0xFFFFu     /* label text default               */
+
+#define UGFX_COL_BTN_IDLE   0x2945u     /* button face — idle               */
+#define UGFX_COL_BTN_PRESS  0x051Fu     /* button face — pressed            */
+#define UGFX_COL_BTN_BORDER 0x7BEFu     /* button border                    */
+#define UGFX_COL_BTN_TXT    0xFFFFu     /* button label text                */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ENUMERATIONS
    ══════════════════════════════════════════════════════════════════════════ */
 
-typedef enum {
-    UGFX_HORIZONTAL = 0,
-    UGFX_VERTICAL
-} ugfx_dir_t;
-
+/** Rotation applied to widget coordinate space */
 typedef enum {
     UGFX_ROT_0   = 0,
     UGFX_ROT_90,
@@ -120,155 +59,202 @@ typedef enum {
     UGFX_ROT_270
 } ugfx_rot_t;
 
+/** Slider orientation */
+typedef enum {
+    UGFX_HORIZONTAL = 0,
+    UGFX_VERTICAL
+} ugfx_dir_t;
+
+/** Which touch gestures a widget responds to */
 typedef enum {
     UGFX_TOUCH_NONE = 0x00u,
     UGFX_TOUCH_TAP  = 0x01u,
-    UGFX_TOUCH_DRAG = 0x02u,
-    UGFX_TOUCH_BOTH = 0x03u
+    UGFX_TOUCH_DRAG = 0x02u
 } ugfx_touch_mask_t;
 
 /* ══════════════════════════════════════════════════════════════════════════
-   WIDGET STRUCTS  (treat as opaque — use the builder API)
+   FORWARD DECLARATIONS  (needed for callback typedefs below)
+   ══════════════════════════════════════════════════════════════════════════ */
+typedef struct ugfx_slider ugfx_slider_t;
+typedef struct ugfx_button ugfx_button_t;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   CALLBACK TYPES
    ══════════════════════════════════════════════════════════════════════════ */
 
-typedef void (*ugfx_value_cb)(int32_t value);   /* slider changed          */
-typedef void (*ugfx_action_cb)(void);            /* button tapped           */
+/**
+ * @brief  Slider value-changed callback.
+ * @param  value   New slider value (already clamped to [val_min, val_max]).
+ */
+typedef void (*ugfx_value_cb)(int32_t value);
 
-/* ── Slider ────────────────────────────────────────────────────────────── */
-typedef struct {
-    /* geometry */
-    uint16_t x, y;          /* top-left origin                             */
-    uint16_t w, h;          /* bounding frame (knob clips inside)          */
-    ugfx_dir_t dir;         /* HORIZONTAL or VERTICAL                      */
+/**
+ * @brief  Button tap callback.
+ * @param  btn     Pointer to the button that was tapped.
+ *                 The callback is free to mutate btn->label, btn->col_idle,
+ *                 btn->col_press, etc. — the engine redraws after returning.
+ */
+typedef void (*ugfx_action_cb)(ugfx_button_t *btn);
 
-    /* value */
-    int32_t val_min, val_max, value;
+/* ══════════════════════════════════════════════════════════════════════════
+   WIDGET STRUCTS
+   ══════════════════════════════════════════════════════════════════════════ */
 
-    /* style */
-    uint16_t col_track, col_fill, col_knob;
+/** Slider widget */
+struct ugfx_slider {
+    /* Geometry */
+    uint16_t x, y;          /* top-left origin in logical (widget) coords  */
+    uint16_t w, h;          /* bounding box                                */
+    ugfx_dir_t dir;         /* UGFX_HORIZONTAL or UGFX_VERTICAL            */
 
-    /* interaction */
+    /* Value */
+    int32_t val_min;
+    int32_t val_max;
+    int32_t value;
+
+    /* Appearance */
+    uint16_t col_track;
+    uint16_t col_fill;
+    uint16_t col_knob;
+
+    /* Interaction */
     ugfx_touch_mask_t touch;
-    ugfx_value_cb on_changed;
+    ugfx_value_cb     on_changed;
 
-    /* internal state */
+    /* Internal state — do not write directly */
+    bool _active;
     bool _dragging;
-    bool _active;           /* registered and alive                        */
-} ugfx_slider_t;
+};
 
-/* ── Button ────────────────────────────────────────────────────────────── */
-typedef struct {
-    uint16_t x, y, w, h;
-    const char *label;
-    uint8_t label_size;
-
-    uint16_t col_idle, col_press, col_border, col_text;
-
-    ugfx_touch_mask_t touch;
-    ugfx_action_cb on_tap;
-
-    bool _pressed;
-    bool _active;
-} ugfx_button_t;
-
-/* ── Icon (1-bit bitmap) ───────────────────────────────────────────────── */
-typedef struct {
+/** Button widget */
+struct ugfx_button {
+    /* Geometry */
     uint16_t x, y;
-    const UI_Bitmap_t *bmp;
-    uint8_t  scale;
-    uint16_t color;
+    uint16_t w, h;
+
+    /* Appearance */
+    const char *label;
+    uint8_t     label_size;    /* font scale factor (1 = 6×8 px per char)  */
+    uint16_t    col_idle;
+    uint16_t    col_press;
+    uint16_t    col_border;
+    uint16_t    col_text;
+
+    /* Interaction */
+    ugfx_touch_mask_t touch;
+    ugfx_action_cb    on_tap;  /* called on press, receives (ugfx_button_t*) */
+
+    /* Internal state — do not write directly */
     bool _active;
+    bool _pressed;
+};
+
+/** Icon widget (monochrome bitmap) */
+typedef struct {
+    uint16_t           x, y;
+    const UI_Bitmap_t *bmp;
+    uint8_t            scale;
+    uint16_t           color;
+    bool               _active;
 } ugfx_icon_t;
 
-/* ── Label ─────────────────────────────────────────────────────────────── */
+/** Label widget */
 typedef struct {
     uint16_t x, y;
-    char text[64];
-    uint16_t col_fg, col_bg;
+    char     text[32];
     uint8_t  size;
-    bool _active;
-    bool _dirty;
+    uint16_t col_fg;
+    uint16_t col_bg;
+    bool     _active;
+    bool     _dirty;
 } ugfx_label_t;
 
 /* ══════════════════════════════════════════════════════════════════════════
-   BUILDER STRUCTS  (returned by Slider() / Button() / Icon() / Label())
-   Each field is the "pending" config; call .build() to commit.
+   BUILDER STRUCTS  (fluent / method-chaining API)
    ══════════════════════════════════════════════════════════════════════════ */
 
-typedef struct _slider_builder ugfx_slider_builder_t;
-struct _slider_builder {
+/* ── Slider builder ──────────────────────────────────────────────────────── */
+typedef struct ugfx_slider_builder ugfx_slider_builder_t;
+struct ugfx_slider_builder {
     ugfx_slider_t cfg;
-    ugfx_slider_builder_t *(*frame)      (ugfx_slider_builder_t*, uint16_t w, uint16_t h);
-    ugfx_slider_builder_t *(*origin)     (ugfx_slider_builder_t*, uint16_t x, uint16_t y);
-    ugfx_slider_builder_t *(*direction)  (ugfx_slider_builder_t*, ugfx_dir_t d);
-    ugfx_slider_builder_t *(*colors)     (ugfx_slider_builder_t*, uint16_t track, uint16_t fill, uint16_t knob);
-    ugfx_slider_builder_t *(*touchMask)  (ugfx_slider_builder_t*, ugfx_touch_mask_t m);
-    ugfx_slider_builder_t *(*onChanged)  (ugfx_slider_builder_t*, ugfx_value_cb cb);
-    ugfx_slider_t         *(*build)      (ugfx_slider_builder_t*);
+
+    ugfx_slider_builder_t *(*frame)    (ugfx_slider_builder_t *, uint16_t w, uint16_t h);
+    ugfx_slider_builder_t *(*origin)   (ugfx_slider_builder_t *, uint16_t x, uint16_t y);
+    ugfx_slider_builder_t *(*direction)(ugfx_slider_builder_t *, ugfx_dir_t);
+    ugfx_slider_builder_t *(*colors)   (ugfx_slider_builder_t *, uint16_t track,
+                                        uint16_t fill, uint16_t knob);
+    ugfx_slider_builder_t *(*touchMask)(ugfx_slider_builder_t *, ugfx_touch_mask_t);
+    ugfx_slider_builder_t *(*onChanged)(ugfx_slider_builder_t *, ugfx_value_cb);
+    ugfx_slider_t         *(*build)    (ugfx_slider_builder_t *);
 };
 
-typedef struct _button_builder ugfx_button_builder_t;
-struct _button_builder {
+/* ── Button builder ──────────────────────────────────────────────────────── */
+typedef struct ugfx_button_builder ugfx_button_builder_t;
+struct ugfx_button_builder {
     ugfx_button_t cfg;
-    ugfx_button_builder_t *(*frame)      (ugfx_button_builder_t*, uint16_t w, uint16_t h);
-    ugfx_button_builder_t *(*origin)     (ugfx_button_builder_t*, uint16_t x, uint16_t y);
-    ugfx_button_builder_t *(*labelSize)  (ugfx_button_builder_t*, uint8_t s);
-    ugfx_button_builder_t *(*colors)     (ugfx_button_builder_t*, uint16_t idle, uint16_t press, uint16_t border, uint16_t text);
-    ugfx_button_builder_t *(*touchMask)  (ugfx_button_builder_t*, ugfx_touch_mask_t m);
-    ugfx_button_builder_t *(*onTap)      (ugfx_button_builder_t*, ugfx_action_cb cb);
-    ugfx_button_t         *(*build)      (ugfx_button_builder_t*);
+
+    ugfx_button_builder_t *(*frame)    (ugfx_button_builder_t *, uint16_t w, uint16_t h);
+    ugfx_button_builder_t *(*origin)   (ugfx_button_builder_t *, uint16_t x, uint16_t y);
+    ugfx_button_builder_t *(*labelSize)(ugfx_button_builder_t *, uint8_t s);
+    ugfx_button_builder_t *(*colors)   (ugfx_button_builder_t *, uint16_t idle,
+                                        uint16_t press, uint16_t border, uint16_t text);
+    ugfx_button_builder_t *(*touchMask)(ugfx_button_builder_t *, ugfx_touch_mask_t);
+    ugfx_button_builder_t *(*onTap)    (ugfx_button_builder_t *, ugfx_action_cb);
+    ugfx_button_t         *(*build)    (ugfx_button_builder_t *);
 };
 
-typedef struct _icon_builder ugfx_icon_builder_t;
-struct _icon_builder {
+/* ── Icon builder ────────────────────────────────────────────────────────── */
+typedef struct ugfx_icon_builder ugfx_icon_builder_t;
+struct ugfx_icon_builder {
     ugfx_icon_t cfg;
-    ugfx_icon_builder_t *(*origin)  (ugfx_icon_builder_t*, uint16_t x, uint16_t y);
-    ugfx_icon_builder_t *(*scale)   (ugfx_icon_builder_t*, uint8_t s);
-    ugfx_icon_builder_t *(*color)   (ugfx_icon_builder_t*, uint16_t c);
-    ugfx_icon_t         *(*build)   (ugfx_icon_builder_t*);
+
+    ugfx_icon_builder_t *(*origin)(ugfx_icon_builder_t *, uint16_t x, uint16_t y);
+    ugfx_icon_builder_t *(*scale) (ugfx_icon_builder_t *, uint8_t s);
+    ugfx_icon_builder_t *(*color) (ugfx_icon_builder_t *, uint16_t c);
+    ugfx_icon_t         *(*build) (ugfx_icon_builder_t *);
 };
 
-typedef struct _label_builder ugfx_label_builder_t;
-struct _label_builder {
+/* ── Label builder ───────────────────────────────────────────────────────── */
+typedef struct ugfx_label_builder ugfx_label_builder_t;
+struct ugfx_label_builder {
     ugfx_label_t cfg;
-    ugfx_label_builder_t *(*origin)  (ugfx_label_builder_t*, uint16_t x, uint16_t y);
-    ugfx_label_builder_t *(*color)   (ugfx_label_builder_t*, uint16_t fg, uint16_t bg);
-    ugfx_label_builder_t *(*size)    (ugfx_label_builder_t*, uint8_t s);
-    ugfx_label_t         *(*build)   (ugfx_label_builder_t*);
+
+    ugfx_label_builder_t *(*origin)(ugfx_label_builder_t *, uint16_t x, uint16_t y);
+    ugfx_label_builder_t *(*color) (ugfx_label_builder_t *, uint16_t fg, uint16_t bg);
+    ugfx_label_builder_t *(*size)  (ugfx_label_builder_t *, uint8_t s);
+    ugfx_label_t         *(*build) (ugfx_label_builder_t *);
 };
 
 /* ══════════════════════════════════════════════════════════════════════════
    PUBLIC API
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Life-cycle */
-void UGFX_Init(void);
-void UGFX_Begin(void);       /* clear all pending widget registrations     */
-void UGFX_Commit(void);      /* draw all registered widgets                */
-void UGFX_Poll(void);        /* call every loop iteration                  */
-
-/* Rotation */
+/* Lifecycle */
+void UGFX_Init       (void);
+void UGFX_Begin      (void);
+void UGFX_Commit     (void);
+void UGFX_Poll       (void);
 void UGFX_SetRotation(ugfx_rot_t rot);
 
-/* Builder entry-points — these return a builder you chain and then .build() */
+/* Runtime widget control */
+void    UGFX_SliderSetValue (ugfx_slider_t *s, int32_t value);
+int32_t UGFX_SliderGetValue (const ugfx_slider_t *s);
+void    UGFX_LabelSetText   (ugfx_label_t *lbl, const char *text);
+
+/* Draw helpers (public so app code can force a redraw) */
+void UGFX_SliderDraw(ugfx_slider_t *s);
+void UGFX_ButtonDraw(ugfx_button_t *b, bool pressed);
+void UGFX_IconDraw  (ugfx_icon_t   *ic);
+void UGFX_LabelDraw (ugfx_label_t  *lbl);
+
+/* Builder factory functions */
 ugfx_slider_builder_t *Slider(int32_t min, int32_t max, int32_t initial);
 ugfx_button_builder_t *Button(const char *label);
 ugfx_icon_builder_t   *Icon  (const UI_Bitmap_t *bmp);
 ugfx_label_builder_t  *Label (const char *text);
 
-/* Runtime helpers — update a live widget without full redraw */
-void UGFX_SliderSetValue(ugfx_slider_t *s, int32_t value);
-int32_t UGFX_SliderGetValue(const ugfx_slider_t *s);
-
-void UGFX_LabelSetText(ugfx_label_t *lbl, const char *text);
-
-/* Manual partial redraw (dirty-rect) */
-void UGFX_SliderDraw(ugfx_slider_t *s);
-void UGFX_ButtonDraw(ugfx_button_t *b, bool pressed);
-void UGFX_IconDraw  (ugfx_icon_t *ic);
-void UGFX_LabelDraw (ugfx_label_t *lbl);
-
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* UGFX_H */

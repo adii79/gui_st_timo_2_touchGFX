@@ -2,6 +2,14 @@
  ******************************************************************************
  * @file    ugfx.c
  * @brief   µGFX implementation — declarative widget engine
+ *
+ * Changes from previous version:
+ *   • ugfx_action_cb now receives (ugfx_button_t *btn) so the callback can
+ *     mutate the button (label, colors, …) before the engine redraws it.
+ *   • on_tap fires on PRESS (finger-down), not on release, for instant feel.
+ *   • Engine redraws the button AFTER the callback returns so mutations show.
+ *   • Drag-off cancels the press without re-firing the callback.
+ *   • Release just restores the idle visual — no double-fire.
  ******************************************************************************
  */
 
@@ -25,8 +33,8 @@ static ugfx_icon_builder_t   _ib;
 static ugfx_label_builder_t  _lbb;
 
 /* Global state */
-static ugfx_rot_t   _rotation = UGFX_ROT_0;
-static bool         _was_touched = false;
+static ugfx_rot_t _rotation    = UGFX_ROT_0;
+static bool       _was_touched = false;
 
 /* ══════════════════════════════════════════════════════════════════════════
    COORDINATE TRANSFORM  (rotation)
@@ -35,15 +43,6 @@ static bool         _was_touched = false;
 /**
  * @brief  Transform a touch point (raw pixel from XPT2046) into the
  *         rotated coordinate space used by widget origins.
- *
- * The display driver already handles physical MADCTL rotation, so pixel
- * (0,0) is always top-left of the visible image.  Widget origins are always
- * in that same "display" coordinate space.  When the user says
- * UGFX_SetRotation(ROT_90) they want widget .origin() coordinates to be
- * expressed in a 90°-rotated logical space (portrait origin at top-left),
- * while the physical display still shows landscape.
- *
- * This function converts a physical touch pixel → logical widget coords.
  */
 static void _TransformTouch(uint16_t px, uint16_t py,
                              uint16_t *lx, uint16_t *ly)
@@ -54,13 +53,13 @@ static void _TransformTouch(uint16_t px, uint16_t py,
     switch (_rotation) {
         default:
         case UGFX_ROT_0:
-            *lx = px;       *ly = py;       break;
+            *lx = px;              *ly = py;              break;
         case UGFX_ROT_90:
-            *lx = py;       *ly = W - 1u - px; break;
+            *lx = py;              *ly = W - 1u - px;     break;
         case UGFX_ROT_180:
-            *lx = W - 1u - px; *ly = H - 1u - py; break;
+            *lx = W - 1u - px;    *ly = H - 1u - py;     break;
         case UGFX_ROT_270:
-            *lx = H - 1u - py; *ly = px;    break;
+            *lx = H - 1u - py;    *ly = px;              break;
     }
 }
 
@@ -77,13 +76,13 @@ static void _TransformOrigin(uint16_t lx, uint16_t ly,
     switch (_rotation) {
         default:
         case UGFX_ROT_0:
-            *px = lx;            *py = ly;            break;
+            *px = lx;              *py = ly;              break;
         case UGFX_ROT_90:
-            *px = W - 1u - ly;   *py = lx;            break;
+            *px = W - 1u - ly;    *py = lx;              break;
         case UGFX_ROT_180:
-            *px = W - 1u - lx;   *py = H - 1u - ly;  break;
+            *px = W - 1u - lx;    *py = H - 1u - ly;    break;
         case UGFX_ROT_270:
-            *px = ly;            *py = H - 1u - lx;   break;
+            *px = ly;              *py = H - 1u - lx;    break;
     }
 }
 
@@ -91,21 +90,15 @@ static void _TransformOrigin(uint16_t lx, uint16_t ly,
    SLIDER DRAWING
    ══════════════════════════════════════════════════════════════════════════ */
 
-/*
- * Map slider value → knob pixel position along the track axis.
- * For HORIZONTAL: returns x offset from slider origin.
- * For VERTICAL:   returns y offset from slider origin.
- */
 static uint16_t _SliderValToPos(const ugfx_slider_t *s)
 {
     int32_t range = s->val_max - s->val_min;
     if (range == 0) return 0u;
 
     uint16_t length = (s->dir == UGFX_HORIZONTAL) ? s->w : s->h;
-    int32_t v = s->value - s->val_min;
+    int32_t  v      = s->value - s->val_min;
 
-    /* Clamp */
-    if (v < 0) v = 0;
+    if (v < 0)     v = 0;
     if (v > range) v = range;
 
     return (uint16_t)((v * (int32_t)(length - 2u * UGFX_KNOB_R)) / range
@@ -115,7 +108,7 @@ static uint16_t _SliderValToPos(const ugfx_slider_t *s)
 static int32_t _SliderPosToVal(const ugfx_slider_t *s, int32_t pos)
 {
     uint16_t length = (s->dir == UGFX_HORIZONTAL) ? s->w : s->h;
-    int32_t travel  = (int32_t)(length - 2u * UGFX_KNOB_R);
+    int32_t  travel = (int32_t)(length - 2u * UGFX_KNOB_R);
 
     int32_t offset = pos - (int32_t)UGFX_KNOB_R;
     if (offset < 0)      offset = 0;
@@ -132,7 +125,7 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
     uint16_t px, py;
     _TransformOrigin(s->x, s->y, &px, &py);
 
-    /* Bounding box erase */
+    /* Erase bounding box */
     ILI9488_FillRect(px, py, s->w, s->h, UGFX_COL_BG);
 
     uint16_t knob_pos = _SliderValToPos(s);
@@ -140,23 +133,20 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
     if (s->dir == UGFX_HORIZONTAL) {
         uint16_t track_y = py + s->h / 2u - UGFX_TRACK_H / 2u;
 
-        /* Full track */
         ILI9488_FillRect(px + UGFX_KNOB_R, track_y,
                          s->w - 2u * UGFX_KNOB_R, UGFX_TRACK_H,
                          s->col_track);
 
-        /* Fill region (left of knob) */
         if (knob_pos > UGFX_KNOB_R) {
             ILI9488_FillRect(px + UGFX_KNOB_R, track_y,
                              knob_pos - UGFX_KNOB_R, UGFX_TRACK_H,
                              s->col_fill);
         }
 
-        /* Knob */
         uint16_t kx = px + knob_pos;
         uint16_t ky = py + s->h / 2u;
-        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,     s->col_knob);
-        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,    0xFFFFu); /* specular */
+        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,        s->col_knob);
+        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,       0xFFFFu);
 
     } else {
         /* VERTICAL slider */
@@ -166,7 +156,6 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
                          UGFX_TRACK_H, s->h - 2u * UGFX_KNOB_R,
                          s->col_track);
 
-        /* Fill region (bottom of knob upward — value increases upward) */
         if (knob_pos < s->h - UGFX_KNOB_R) {
             ILI9488_FillRect(track_x,
                              py + knob_pos,
@@ -175,11 +164,10 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
                              s->col_fill);
         }
 
-        /* Knob */
         uint16_t kx = px + s->w / 2u;
         uint16_t ky = py + knob_pos;
-        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,     s->col_knob);
-        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,    0xFFFFu);
+        ILI9488_FillCircle(kx, ky, UGFX_KNOB_R,        s->col_knob);
+        ILI9488_FillCircle(kx - 3u, ky - 3u, 3u,       0xFFFFu);
     }
 }
 
@@ -194,8 +182,8 @@ void UGFX_ButtonDraw(ugfx_button_t *b, bool pressed)
     uint16_t px, py;
     _TransformOrigin(b->x, b->y, &px, &py);
 
-    uint16_t face   = pressed ? b->col_press : b->col_idle;
-    uint16_t border = pressed ? 0x07FFu      : b->col_border;
+    uint16_t face   = pressed ? b->col_press  : b->col_idle;
+    uint16_t border = pressed ? 0x07FFu       : b->col_border;
 
     ILI9488_FillRect(px, py, b->w, b->h, face);
     ILI9488_DrawRect(px, py, b->w, b->h, border);
@@ -207,7 +195,7 @@ void UGFX_ButtonDraw(ugfx_button_t *b, bool pressed)
     }
 
     if (b->label) {
-        uint8_t sz = b->label_size;
+        uint8_t  sz = b->label_size;
         uint16_t tw = (uint16_t)(strlen(b->label) * 6u * sz);
         uint16_t th = (uint16_t)(7u * sz);
         uint16_t lx = (uint16_t)(px + (b->w > tw ? (b->w - tw) / 2u : 2u));
@@ -252,23 +240,21 @@ static bool _InRect(uint16_t tx, uint16_t ty,
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   SLIDER TOUCH HANDLER  (called with logical coordinates)
+   SLIDER TOUCH HANDLER
    ══════════════════════════════════════════════════════════════════════════ */
 
 static bool _SliderTouch(ugfx_slider_t *s, uint16_t lx, uint16_t ly)
 {
-    if (!s->_active) return false;
+    if (!s->_active)                    return false;
     if (!(s->touch & UGFX_TOUCH_DRAG)) return false;
 
-    /* Extend hit area by knob radius so it's easy to grab */
+    /* Extended hit area: knob radius padding on every side */
     uint16_t hx = (s->x > UGFX_KNOB_R) ? s->x - UGFX_KNOB_R : 0u;
     uint16_t hy = (s->y > UGFX_KNOB_R) ? s->y - UGFX_KNOB_R : 0u;
     uint16_t hw = s->w + 2u * UGFX_KNOB_R;
     uint16_t hh = s->h + 2u * UGFX_KNOB_R;
 
-    if (!_InRect(lx, ly, hx, hy, hw, hh)) {
-        return false;
-    }
+    if (!_InRect(lx, ly, hx, hy, hw, hh)) return false;
 
     int32_t new_val;
     if (s->dir == UGFX_HORIZONTAL) {
@@ -292,7 +278,7 @@ static void _SliderRelease(ugfx_slider_t *s)
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   BUTTON TOUCH HANDLER
+   BUTTON HIT TEST
    ══════════════════════════════════════════════════════════════════════════ */
 
 static bool _ButtonInBounds(const ugfx_button_t *b, uint16_t lx, uint16_t ly)
@@ -311,13 +297,12 @@ void UGFX_Init(void)
     memset(_icons,   0, sizeof(_icons));
     memset(_labels,  0, sizeof(_labels));
     _n_sliders = _n_buttons = _n_icons = _n_labels = 0u;
-    _rotation = UGFX_ROT_0;
+    _rotation    = UGFX_ROT_0;
     _was_touched = false;
 }
 
 void UGFX_Begin(void)
 {
-    /* Reset pools — caller will re-register widgets */
     for (uint8_t i = 0; i < UGFX_MAX_SLIDERS; i++) _sliders[i]._active = false;
     for (uint8_t i = 0; i < UGFX_MAX_BUTTONS; i++) _buttons[i]._active = false;
     for (uint8_t i = 0; i < UGFX_MAX_ICONS;   i++) _icons  [i]._active = false;
@@ -327,10 +312,10 @@ void UGFX_Begin(void)
 
 void UGFX_Commit(void)
 {
-    for (uint8_t i = 0; i < _n_icons;   i++) UGFX_IconDraw  (&_icons[i]);
-    for (uint8_t i = 0; i < _n_buttons; i++) UGFX_ButtonDraw (&_buttons[i], false);
-    for (uint8_t i = 0; i < _n_sliders; i++) UGFX_SliderDraw (&_sliders[i]);
-    for (uint8_t i = 0; i < _n_labels;  i++) UGFX_LabelDraw  (&_labels[i]);
+    for (uint8_t i = 0; i < _n_icons;   i++) UGFX_IconDraw  (&_icons  [i]);
+    for (uint8_t i = 0; i < _n_buttons; i++) UGFX_ButtonDraw(&_buttons[i], false);
+    for (uint8_t i = 0; i < _n_sliders; i++) UGFX_SliderDraw(&_sliders[i]);
+    for (uint8_t i = 0; i < _n_labels;  i++) UGFX_LabelDraw (&_labels [i]);
 }
 
 void UGFX_SetRotation(ugfx_rot_t rot)
@@ -364,7 +349,7 @@ void UGFX_LabelSetText(ugfx_label_t *lbl, const char *text)
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   POLL  — main event loop
+   POLL  — main event loop, call from while(1)
    ══════════════════════════════════════════════════════════════════════════ */
 
 void UGFX_Poll(void)
@@ -377,41 +362,64 @@ void UGFX_Poll(void)
         _TransformTouch(pt.x, pt.y, &lx, &ly);
     }
 
+    /* ══ FINGER DOWN / DRAGGING ══════════════════════════════════════════ */
     if (touching) {
-        /* Feed sliders (DRAG) */
+
+        /* ── Sliders (DRAG) ───────────────────────────────────────────── */
         for (uint8_t i = 0; i < _n_sliders; i++) {
             _SliderTouch(&_sliders[i], lx, ly);
         }
 
-        /* Feed buttons (TAP — track press state) */
+        /* ── Buttons (TAP — fires on press, redraws after callback) ───── */
         for (uint8_t i = 0; i < _n_buttons; i++) {
             ugfx_button_t *b = &_buttons[i];
-            if (!b->_active)              continue;
+
+            if (!b->_active)                   continue;
             if (!(b->touch & UGFX_TOUCH_TAP)) continue;
 
             bool in = _ButtonInBounds(b, lx, ly);
+
             if (in && !b->_pressed) {
+                /* ── Finger just landed inside ── */
                 b->_pressed = true;
+
+                /* 1. Draw pressed state so user sees instant feedback */
                 UGFX_ButtonDraw(b, true);
+
+                /* 2. Call the user callback — it may mutate b->label,
+                      b->col_idle, b->col_press, b->col_text, etc.      */
+                if (b->on_tap) {
+                    b->on_tap(b);
+                }
+
+                /* 3. Redraw to show any mutations the callback made
+                      (still in pressed state while finger is down)      */
+                UGFX_ButtonDraw(b, true);
+
             } else if (!in && b->_pressed) {
-                /* dragged off — cancel */
+                /* ── Finger dragged off — cancel, no callback ── */
                 b->_pressed = false;
                 UGFX_ButtonDraw(b, false);
             }
         }
 
+    /* ══ FINGER LIFTED ═══════════════════════════════════════════════════ */
     } else {
-        /* Touch released */
         if (_was_touched) {
-            for (uint8_t i = 0; i < _n_sliders; i++)
-                _SliderRelease(&_sliders[i]);
 
+            /* Release all sliders */
+            for (uint8_t i = 0; i < _n_sliders; i++) {
+                _SliderRelease(&_sliders[i]);
+            }
+
+            /* Restore button idle visuals (callback already fired on press) */
             for (uint8_t i = 0; i < _n_buttons; i++) {
                 ugfx_button_t *b = &_buttons[i];
                 if (b->_pressed) {
                     b->_pressed = false;
                     UGFX_ButtonDraw(b, false);
-                    if (b->on_tap) b->on_tap();
+                    /* NOTE: on_tap already fired on finger-down above.
+                             Do NOT call it again here.                  */
                 }
             }
         }
@@ -426,25 +434,40 @@ void UGFX_Poll(void)
 
 /* ── Slider builder ─────────────────────────────────────────────────────── */
 
-static ugfx_slider_builder_t *_SB_frame(ugfx_slider_builder_t *b, uint16_t w, uint16_t h)
+static ugfx_slider_builder_t *_SB_frame(ugfx_slider_builder_t *b,
+                                         uint16_t w, uint16_t h)
     { b->cfg.w = w; b->cfg.h = h; return b; }
-static ugfx_slider_builder_t *_SB_origin(ugfx_slider_builder_t *b, uint16_t x, uint16_t y)
+
+static ugfx_slider_builder_t *_SB_origin(ugfx_slider_builder_t *b,
+                                           uint16_t x, uint16_t y)
     { b->cfg.x = x; b->cfg.y = y; return b; }
-static ugfx_slider_builder_t *_SB_direction(ugfx_slider_builder_t *b, ugfx_dir_t d)
+
+static ugfx_slider_builder_t *_SB_direction(ugfx_slider_builder_t *b,
+                                              ugfx_dir_t d)
     { b->cfg.dir = d; return b; }
+
 static ugfx_slider_builder_t *_SB_colors(ugfx_slider_builder_t *b,
-                                          uint16_t track, uint16_t fill, uint16_t knob)
-    { b->cfg.col_track = track; b->cfg.col_fill = fill; b->cfg.col_knob = knob; return b; }
-static ugfx_slider_builder_t *_SB_touchMask(ugfx_slider_builder_t *b, ugfx_touch_mask_t m)
+                                           uint16_t track,
+                                           uint16_t fill,
+                                           uint16_t knob)
+    { b->cfg.col_track = track;
+      b->cfg.col_fill  = fill;
+      b->cfg.col_knob  = knob;
+      return b; }
+
+static ugfx_slider_builder_t *_SB_touchMask(ugfx_slider_builder_t *b,
+                                              ugfx_touch_mask_t m)
     { b->cfg.touch = m; return b; }
-static ugfx_slider_builder_t *_SB_onChanged(ugfx_slider_builder_t *b, ugfx_value_cb cb)
+
+static ugfx_slider_builder_t *_SB_onChanged(ugfx_slider_builder_t *b,
+                                              ugfx_value_cb cb)
     { b->cfg.on_changed = cb; return b; }
 
 static ugfx_slider_t *_SB_build(ugfx_slider_builder_t *b)
 {
     if (_n_sliders >= UGFX_MAX_SLIDERS) return NULL;
     ugfx_slider_t *s = &_sliders[_n_sliders++];
-    *s = b->cfg;
+    *s           = b->cfg;
     s->_active   = true;
     s->_dragging = false;
     return s;
@@ -460,7 +483,7 @@ ugfx_slider_builder_t *Slider(int32_t min, int32_t max, int32_t initial)
     _sb.cfg.col_fill  = UGFX_COL_FILL;
     _sb.cfg.col_knob  = UGFX_COL_KNOB;
     _sb.cfg.touch     = UGFX_TOUCH_DRAG;
-    _sb.cfg.h         = (uint16_t)(UGFX_KNOB_R * 2u + 2u); /* default height */
+    _sb.cfg.h         = (uint16_t)(UGFX_KNOB_R * 2u + 2u);
 
     _sb.frame      = _SB_frame;
     _sb.origin     = _SB_origin;
@@ -474,29 +497,42 @@ ugfx_slider_builder_t *Slider(int32_t min, int32_t max, int32_t initial)
 
 /* ── Button builder ─────────────────────────────────────────────────────── */
 
-static ugfx_button_builder_t *_BB_frame(ugfx_button_builder_t *b, uint16_t w, uint16_t h)
+static ugfx_button_builder_t *_BB_frame(ugfx_button_builder_t *b,
+                                          uint16_t w, uint16_t h)
     { b->cfg.w = w; b->cfg.h = h; return b; }
-static ugfx_button_builder_t *_BB_origin(ugfx_button_builder_t *b, uint16_t x, uint16_t y)
+
+static ugfx_button_builder_t *_BB_origin(ugfx_button_builder_t *b,
+                                           uint16_t x, uint16_t y)
     { b->cfg.x = x; b->cfg.y = y; return b; }
-static ugfx_button_builder_t *_BB_labelSize(ugfx_button_builder_t *b, uint8_t s)
+
+static ugfx_button_builder_t *_BB_labelSize(ugfx_button_builder_t *b,
+                                              uint8_t s)
     { b->cfg.label_size = s; return b; }
+
 static ugfx_button_builder_t *_BB_colors(ugfx_button_builder_t *b,
-                                          uint16_t idle, uint16_t press,
-                                          uint16_t border, uint16_t text)
-    { b->cfg.col_idle = idle; b->cfg.col_press = press;
-      b->cfg.col_border = border; b->cfg.col_text = text; return b; }
-static ugfx_button_builder_t *_BB_touchMask(ugfx_button_builder_t *b, ugfx_touch_mask_t m)
+                                           uint16_t idle, uint16_t press,
+                                           uint16_t border, uint16_t text)
+    { b->cfg.col_idle   = idle;
+      b->cfg.col_press  = press;
+      b->cfg.col_border = border;
+      b->cfg.col_text   = text;
+      return b; }
+
+static ugfx_button_builder_t *_BB_touchMask(ugfx_button_builder_t *b,
+                                              ugfx_touch_mask_t m)
     { b->cfg.touch = m; return b; }
-static ugfx_button_builder_t *_BB_onTap(ugfx_button_builder_t *b, ugfx_action_cb cb)
+
+static ugfx_button_builder_t *_BB_onTap(ugfx_button_builder_t *b,
+                                          ugfx_action_cb cb)
     { b->cfg.on_tap = cb; return b; }
 
 static ugfx_button_t *_BB_build(ugfx_button_builder_t *b)
 {
     if (_n_buttons >= UGFX_MAX_BUTTONS) return NULL;
     ugfx_button_t *btn = &_buttons[_n_buttons++];
-    *btn = b->cfg;
-    btn->_active  = true;
-    btn->_pressed = false;
+    *btn           = b->cfg;
+    btn->_active   = true;
+    btn->_pressed  = false;
     return btn;
 }
 
@@ -523,10 +559,13 @@ ugfx_button_builder_t *Button(const char *label)
 
 /* ── Icon builder ───────────────────────────────────────────────────────── */
 
-static ugfx_icon_builder_t *_IB_origin(ugfx_icon_builder_t *b, uint16_t x, uint16_t y)
+static ugfx_icon_builder_t *_IB_origin(ugfx_icon_builder_t *b,
+                                         uint16_t x, uint16_t y)
     { b->cfg.x = x; b->cfg.y = y; return b; }
+
 static ugfx_icon_builder_t *_IB_scale(ugfx_icon_builder_t *b, uint8_t s)
     { b->cfg.scale = s; return b; }
+
 static ugfx_icon_builder_t *_IB_color(ugfx_icon_builder_t *b, uint16_t c)
     { b->cfg.color = c; return b; }
 
@@ -534,8 +573,8 @@ static ugfx_icon_t *_IB_build(ugfx_icon_builder_t *b)
 {
     if (_n_icons >= UGFX_MAX_ICONS) return NULL;
     ugfx_icon_t *ic = &_icons[_n_icons++];
-    *ic = b->cfg;
-    ic->_active = true;
+    *ic          = b->cfg;
+    ic->_active  = true;
     return ic;
 }
 
@@ -555,10 +594,14 @@ ugfx_icon_builder_t *Icon(const UI_Bitmap_t *bmp)
 
 /* ── Label builder ──────────────────────────────────────────────────────── */
 
-static ugfx_label_builder_t *_LB_origin(ugfx_label_builder_t *b, uint16_t x, uint16_t y)
+static ugfx_label_builder_t *_LB_origin(ugfx_label_builder_t *b,
+                                          uint16_t x, uint16_t y)
     { b->cfg.x = x; b->cfg.y = y; return b; }
-static ugfx_label_builder_t *_LB_color(ugfx_label_builder_t *b, uint16_t fg, uint16_t bg)
+
+static ugfx_label_builder_t *_LB_color(ugfx_label_builder_t *b,
+                                         uint16_t fg, uint16_t bg)
     { b->cfg.col_fg = fg; b->cfg.col_bg = bg; return b; }
+
 static ugfx_label_builder_t *_LB_size(ugfx_label_builder_t *b, uint8_t s)
     { b->cfg.size = s; return b; }
 
@@ -566,9 +609,9 @@ static ugfx_label_t *_LB_build(ugfx_label_builder_t *b)
 {
     if (_n_labels >= UGFX_MAX_LABELS) return NULL;
     ugfx_label_t *lbl = &_labels[_n_labels++];
-    *lbl = b->cfg;
-    lbl->_active = true;
-    lbl->_dirty  = false;
+    *lbl          = b->cfg;
+    lbl->_active  = true;
+    lbl->_dirty   = false;
     return lbl;
 }
 

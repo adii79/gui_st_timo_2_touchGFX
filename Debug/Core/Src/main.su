@@ -1,6 +1,12 @@
-../Core/Src/main.c:72:5:main	32	static
+../Core/Src/main.c:78:13:OnSliderR_Changed	16	static
+../Core/Src/main.c:85:13:OnSliderG_Changed	16	static
+../Core/Src/main.c:92:13:OnSliderB_Changed	16	static
+../Core/Src/main.c:115:13:OnOkPressed	16	static
+../Core/Src/main.c:132:13:OnTestPressed	16	static
+../Core/Src/main.c:148:13:OnTestPresseda	16	static
+../Core/Src/main.c:175:5:main	40	static
 ../Core/Src/main.c:283:6:SystemClock_Config	88	static
-../Core/Src/main.c:337:13:MX_SPI1_Init	8	static
-../Core/Src/main.c:375:13:MX_GPIO_Init	48	static
-../Core/Src/main.c:427:6:HAL_GPIO_EXTI_Callback	16	static
-../Core/Src/main.c:439:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:324:13:MX_SPI1_Init	8	static
+../Core/Src/main.c:357:13:MX_GPIO_Init	48	static
+../Core/Src/main.c:400:6:HAL_GPIO_EXTI_Callback	16	static
+../Core/Src/main.c:411:6:Error_Handler	4	static,ignoring_inline_asm
