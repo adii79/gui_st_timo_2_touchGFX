@@ -1,0 +1,13 @@
+../Core/Src/gradient.c:623:17:HueSVtoRGB565	64	static
+../Core/Src/gradient.c:655:13:BuildBgColours	16	static
+../Core/Src/gradient.c:666:10:LerpRGB565	24	static
+../Core/Src/gradient.c:680:17:RoundRectClip	32	static
+../Core/Src/gradient.c:703:13:FillRoundRectGradientH	32	static
+../Core/Src/gradient.c:718:13:FillRoundRectGradientV	32	static
+../Core/Src/gradient.c:733:13:FillRoundRectGradient	32	static
+../Core/Src/gradient.c:745:13:DrawRoundRectOutline	24	static
+../Core/Src/gradient.c:763:17:ColFn_Rainbow	24	static
+../Core/Src/gradient.c:805:17:ColFn_BlackToRed	24	static
+../Core/Src/gradient.c:824:17:ColFn_AlphaToBlue	24	static
+../Core/Src/gradient.c:839:13:DrawSliderKnob	16	static
+../Core/Src/gradient.c:851:6:DrawStaticSliderImage	64	static

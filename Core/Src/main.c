@@ -27,6 +27,7 @@
 #include "ui_gfx.h"
 #include <stdio.h>
 #include "ugfx.h"
+#include "gradient.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,7 @@ static ugfx_slider_t *g_sliderG = NULL;   /* "Green" slider  */
 static ugfx_slider_t *g_sliderB = NULL;   /* "Blue"  slider  */
 static ugfx_label_t  *g_label   = NULL;   /* status label    */
 
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,112 +68,6 @@ static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
 
 
-
-//
-/* RGB565 colors */
-#define COL_BG         0xDEFB   // light gray
-#define COL_WHITE      0xFFFF
-#define COL_BLACK      0x0000
-#define COL_RED        0xF800
-#define COL_DARK_RED   0x7800
-#define COL_BLUE       0x001F
-#define COL_GRAY       0xC618
-#define COL_PINK       0xF81F
-#define COL_PURPLE     0x801F
-
-static void DrawSliderCircle(uint16_t x, uint16_t y, uint16_t fill)
-{
-    /* shadow */
-    ILI9488_FillCircle(x + 2, y + 2, 12, 0xBDF7);
-
-    /* outer white */
-    ILI9488_FillCircle(x, y, 12, COL_WHITE);
-
-    /* border */
-    ILI9488_DrawCircle(x, y, 12, COL_GRAY);
-
-    /* inner color */
-    ILI9488_FillCircle(x, y, 8, fill);
-}
-
-static void DrawStaticSliderImage(void)
-{
-    ILI9488_FillScreen(COL_BG);
-
-    /* =====================================================
-       TOP HUE BAR (rainbow look)
-       ===================================================== */
-    uint16_t x = 70;
-    uint16_t y = 50;
-    uint16_t w = 340;
-    uint16_t h = 28;
-
-    /* simple rainbow blocks */
-    ILI9488_FillRect(x +   0, y, 48, h, 0xF800); // red
-    ILI9488_FillRect(x +  48, y, 48, h, 0xFD20); // orange
-    ILI9488_FillRect(x +  96, y, 48, h, 0xFFE0); // yellow
-    ILI9488_FillRect(x + 144, y, 48, h, 0x07E0); // green
-    ILI9488_FillRect(x + 192, y, 48, h, 0x07FF); // cyan
-    ILI9488_FillRect(x + 240, y, 48, h, 0x001F); // blue
-    ILI9488_FillRect(x + 288, y, 52, h, 0xF81F); // magenta
-
-    DrawSliderCircle(360, 64, COL_PINK);
-
-    /* =====================================================
-       RED BAR
-       ===================================================== */
-    x = 70;
-    y = 130;
-    w = 340;
-    h = 28;
-
-    /* black -> red gradient */
-    for (uint16_t i = 0; i < w; i++)
-    {
-        uint8_t r = (i * 31) / w;
-        uint16_t c = (r << 11); // RGB565 red
-        ILI9488_DrawVLine(x + i, y, h, c);
-    }
-
-    DrawSliderCircle(410, 144, COL_RED);
-
-    /* =====================================================
-       BLUE / ALPHA BAR
-       ===================================================== */
-    x = 70;
-    y = 210;
-    w = 340;
-    h = 28;
-
-    /* checkerboard background */
-    for (uint16_t yy = 0; yy < h; yy += 10)
-    {
-        for (uint16_t xx = 0; xx < 50; xx += 10)
-        {
-            uint16_t c =
-                (((xx / 10) + (yy / 10)) & 1) ?
-                0xCE79 : 0xEF5D;
-
-            ILI9488_FillRect(x + xx, y + yy, 10, 10, c);
-        }
-    }
-
-    /* fade to blue */
-    for (uint16_t i = 0; i < w; i++)
-    {
-        uint8_t b = (i * 31) / w;
-        uint16_t c = b; // blue channel RGB565
-        ILI9488_DrawVLine(x + i, y, h, c);
-    }
-
-    DrawSliderCircle(240, 224, 0x001F);
-}
-
-
-
-//
-
-
 /* ══════════════════════════════════════════════════════════════════════════
    SLIDER CALLBACKS
    Called every time the user moves a slider.  value is already clamped.
@@ -180,7 +76,6 @@ static void DrawStaticSliderImage(void)
 int atest = 0;
 int btest = 0;
 int ctest = 0;
-
 
 static void OnSliderR_Changed(int32_t value)
 {
@@ -194,6 +89,29 @@ static void OnSliderG_Changed(int32_t value)
     btest = (int)value;
     snprintf(msg, sizeof(msg), "B:%3d", btest);
     if (g_label) UGFX_LabelSetText(g_label, msg);
+
+    /* 1. Map the 0-255 slider value to a 0-360 Hue value */
+        g_Slider2_Hue = (uint16_t)((value * 360) / 255);
+//
+//        /* 2. Redraw the background gradients to show the new color immediately */
+//        DrawStaticSliderImage();
+        for (uint8_t r = 0u; r < 3u; r++) {
+               FillRoundRectGradient(sliders[r].x, sliders[r].y,
+                                     sliders[r].w, sliders[r].h,
+                                     sliders[r].rx,
+                                     sliders[r].fn,
+                                     sliders[r].vertical);
+
+               DrawRoundRectOutline(sliders[r].x, sliders[r].y,
+                                    sliders[r].w, sliders[r].h,
+                                    sliders[r].rx, COL_WHITE);
+
+               /* DrawSliderKnob(sliders[r].knob_x,
+                                 sliders[r].knob_cy,
+                                 sliders[r].knob_fill); */
+           }
+//        UGFX_Poll();
+
 }
 
 static void OnSliderB_Changed(int32_t value)
@@ -205,19 +123,10 @@ static void OnSliderB_Changed(int32_t value)
 
 /* ══════════════════════════════════════════════════════════════════════════
    BUTTON CALLBACKS
-   Signature:  void MyCallback(ugfx_button_t *btn)
-   The engine calls this on finger-DOWN with a pointer to the button.
-   You may freely mutate:
-     btn->label        — changes the text displayed on the button
-     btn->col_idle     — idle background colour
-     btn->col_press    — pressed background colour
-     btn->col_text     — label text colour
-   The engine redraws the button after this function returns.
    ══════════════════════════════════════════════════════════════════════════ */
 
 /**
- * @brief  "OK" button pressed.
- *         Resets all three sliders to 0 and updates the label.
+ * @brief  "OK" button — resets all three sliders to 0.
  */
 static void OnOkPressed(ugfx_button_t *btn)
 {
@@ -233,8 +142,7 @@ static void OnOkPressed(ugfx_button_t *btn)
 }
 
 /**
- * @brief  "TEST" button pressed.
- *         Sets all sliders to mid-range and changes the button colour.
+ * @brief  "TEST" button — sets all sliders to mid-range.
  */
 static void OnTestPressed(ugfx_button_t *btn)
 {
@@ -254,19 +162,7 @@ static void OnTestPressed(ugfx_button_t *btn)
 int test = 0;
 static void OnTestPresseda(ugfx_button_t *btn)
 {
-//    btn->label    = "MID!";
-//    btn->col_idle = 0xF800u;
-//    btn->col_text = 0x0000u;
-//
-//    atest = 100; btest = 100; ctest = 100;
-//
-//    if (g_sliderR) UGFX_SliderSetValue(g_sliderR, 100);
-//    if (g_sliderG) UGFX_SliderSetValue(g_sliderG, 100);
-//    if (g_sliderB) UGFX_SliderSetValue(g_sliderB, 100);
-//
-//    if (g_label) UGFX_LabelSetText(g_label, "Mid set");
-	test++;
-
+    test++;
 }
 
 /* USER CODE END PFP */
@@ -314,26 +210,26 @@ int main(void)
     UGFX_Init();
     UGFX_Begin();
 
-    /* ── Slider: Red (vertical, x=240) ──────────────────────────────────── */
+    /* ── Slider: Red (vertical) ──────────────────────────────────────────── */
     ugfx_slider_builder_t *sb = Slider(0, 255, 100);
     sb->frame    (sb, 30, 150);
     sb->origin   (sb, 75, 40);
     sb->direction(sb, UGFX_VERTICAL);
-    sb->onChanged(sb, OnSliderR_Changed);   /* wire callback */
+    sb->onChanged(sb, OnSliderR_Changed);
     g_sliderR = sb->build(sb);
 
-    /* ── Slider: Green (vertical, x=300) ─────────────────────────────────── */
+    /* ── Slider: Green (horizontal) ─────────────────────────────────────── */
     ugfx_slider_builder_t *sb1 = Slider(0, 255, 80);
-    sb1->frame    (sb1, 300, 20);
-    sb1->origin   (sb1, 170, 80);
+    sb1->frame    (sb1, 360, 15);
+    sb1->origin   (sb1, 125, 80);
     sb1->direction(sb1, UGFX_HORIZONTAL);
     sb1->onChanged(sb1, OnSliderG_Changed);
     g_sliderG = sb1->build(sb1);
 
-    /* ── Slider: Blue (vertical, x=360) ──────────────────────────────────── */
+    /* ── Slider: Blue (horizontal) ──────────────────────────────────────── */
     ugfx_slider_builder_t *sb2 = Slider(0, 255, 160);
-    sb2->frame    (sb2, 300, 20);
-    sb2->origin   (sb2, 170, 210);
+    sb2->frame    (sb2, 360, 15);
+    sb2->origin   (sb2, 125, 185);
     sb2->direction(sb2, UGFX_HORIZONTAL);
     sb2->onChanged(sb2, OnSliderB_Changed);
     g_sliderB = sb2->build(sb2);
@@ -342,31 +238,54 @@ int main(void)
     ugfx_button_builder_t *bb = Button("OK");
     bb->frame (bb, 80, 50);
     bb->origin(bb, 300, 270);
-    bb->onTap (bb, OnOkPressed);            /* wire callback */
+    bb->onTap (bb, OnOkPressed);
     bb->build (bb);
 
     /* ── Button: TEST ────────────────────────────────────────────────────── */
     ugfx_button_builder_t *bbb = Button("TEST");
     bbb->frame (bbb, 80, 50);
     bbb->origin(bbb, 350, 270);
-    bbb->onTap (bbb, OnTestPressed);        /* wire callback */
+    bbb->onTap (bbb, OnTestPressed);
     bbb->build (bbb);
 
+    /* ── Button: a++ ─────────────────────────────────────────────────────── */
     ugfx_button_builder_t *bbb1 = Button("a++");
-        bbb1->frame (bbb1, 50, 50);
-        bbb1->origin(bbb1, 430, 270);
-        bbb1->onTap (bbb1, OnTestPresseda);        /* wire callback */
-        bbb1->build (bbb1);
+    bbb1->frame (bbb1, 50, 50);
+    bbb1->origin(bbb1, 430, 270);
+    bbb1->onTap (bbb1, OnTestPresseda);
+    bbb1->build (bbb1);
 
-    /* ── Label: status line ──────────────────────────────────────────────── */
-//    ugfx_label_builder_t *lb = Label("Ready");
-//    lb->origin(lb, 30, 280);
-//    lb->size  (lb, 2);
-//    g_label = lb->build(lb);
+    /* ── Label: status line (commented out — uncomment to enable) ────────── */
+    /* ugfx_label_builder_t *lb = Label("Ready");
+       lb->origin(lb, 30, 280);
+       lb->size  (lb, 2);
+       g_label = lb->build(lb); */
 
-    /* Draw everything for the first time */
-    UGFX_Commit();
+    /* ── Initial draw ────────────────────────────────────────────────────── */
+
+    g_Slider2_Hue = 120;
+    ILI9488_FillScreen( 0x0000);
     DrawStaticSliderImage();
+//    ILI9488_FillScreen( 0x0000);
+    UGFX_Commit();
+
+    /*
+     * DrawStaticSliderImage() paints:
+     *   1. A top-to-bottom dark gradient background (dark charcoal → slate)
+     *   2. Three pill-shaped gradient slider track backgrounds:
+     *        Row 1 — full hue rainbow  (red→orange→yellow→green→cyan→blue→magenta)
+     *        Row 2 — black → dark red → bright red
+     *        Row 3 — checkerboard (transparency) → solid blue
+     *
+     * Call AFTER UGFX_Commit() so widgets are drawn on top of the background.
+     * If you later call UGFX_SliderSetValue() or the user drags a slider,
+     * the engine erases and redraws only the slider widget — the gradient
+     * background behind it will be cleared to UGFX_COL_BG.  To keep the
+     * track gradient visible after interaction, either:
+     *   a) Set UGFX_COL_BG to BG_TOP/BG_BOT so erased areas blend in, or
+     *   b) Call DrawStaticSliderImage() again after each slider interaction.
+     */
+
 
     /* USER CODE END 2 */
 
