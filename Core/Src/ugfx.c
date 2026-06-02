@@ -142,11 +142,11 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
     /* Erase bounding box */
 //    ILI9488_FillRect(px, py, s->w, s->h, UGFX_COL_BG);
     /* NEW — pad by UGFX_KNOB_R on every side */
-    uint16_t erase_x = (px >= UGFX_KNOB_R) ? px - UGFX_KNOB_R : 0u;
-    uint16_t erase_y = (py >= UGFX_KNOB_R) ? py - UGFX_KNOB_R : 0u;
-    uint16_t erase_w = s->w + 2u * UGFX_KNOB_R;
-    uint16_t erase_h = s->h + 2u * UGFX_KNOB_R;
-    ILI9488_FillRect(erase_x, erase_y, erase_w, erase_h, UGFX_COL_BG);
+    // uint16_t erase_x = (px >= UGFX_KNOB_R) ? px - UGFX_KNOB_R : 0u;
+    // uint16_t erase_y = (py >= UGFX_KNOB_R) ? py - UGFX_KNOB_R : 0u;
+    // uint16_t erase_w = s->w + 2u * UGFX_KNOB_R;
+    // uint16_t erase_h = s->h + 2u * UGFX_KNOB_R;
+    // ILI9488_FillRect(erase_x, erase_y, erase_w, erase_h, UGFX_COL_BG);
 
     uint16_t knob_pos = _SliderValToPos(s);
 

@@ -2,7 +2,7 @@
 ../Core/Src/ugfx.c:70:13:_TransformOrigin	32	static
 ../Core/Src/ugfx.c:93:17:_SliderValToPos	40	static
 ../Core/Src/ugfx.c:117:16:_SliderPosToVal	32	static
-../Core/Src/ugfx.c:135:6:UGFX_SliderDraw	64	static
+../Core/Src/ugfx.c:135:6:UGFX_SliderDraw	48	static
 ../Core/Src/ugfx.c:202:6:UGFX_ButtonDraw	56	static
 ../Core/Src/ugfx.c:235:6:UGFX_IconDraw	40	static
 ../Core/Src/ugfx.c:256:6:UGFX_LabelDraw	40	static
