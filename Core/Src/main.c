@@ -4,16 +4,6 @@
   * @file           : main.c
   * @brief          : Main program body
   ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
   */
 /* USER CODE END Header */
 
@@ -50,12 +40,17 @@ static char msg[64];
 
 /*
  * Keep handles to widgets that callbacks need to reference.
- * Declared here so both the setup code and callbacks can access them.
  */
-static ugfx_slider_t *g_sliderR = NULL;   /* Slider 1 — Rainbow / hue picker */
-static ugfx_slider_t *g_sliderG = NULL;   /* Slider 2 — value slider         */
-static ugfx_slider_t *g_sliderB = NULL;   /* Slider 3 — value slider         */
-static ugfx_label_t  *g_label   = NULL;   /* status label                    */
+static ugfx_slider_t *g_sliderR = NULL;   /* Slider 1 — Rainbow / hue picker (VERTICAL)  */
+static ugfx_slider_t *g_sliderG = NULL;   /* Slider 2 — Black → hue (HORIZONTAL)         */
+static ugfx_slider_t *g_sliderB = NULL;   /* Slider 3 — Alpha → Blue (HORIZONTAL)        */
+static ugfx_label_t  *g_label   = NULL;   /* status label                                */
+
+/*
+ * Declare the knob bitmap defined in ugfx.c so main.c can reference it.
+ * The definition (KNOB_BMP_DATA[] + g_knob_bmp) lives in ugfx.c.
+ */
+extern const UI_Bitmap_t g_knob_bmp;
 
 /* USER CODE END PV */
 
@@ -68,7 +63,6 @@ static void MX_SPI1_Init(void);
 
 /* ══════════════════════════════════════════════════════════════════════════
    SLIDER CALLBACKS
-   Called every time the user moves a slider.  value is already clamped.
    ══════════════════════════════════════════════════════════════════════════ */
 
 int atest = 0;
@@ -76,27 +70,26 @@ int btest = 0;
 int ctest = 0;
 
 /**
- * @brief  Slider 1 — Rainbow hue picker.
- *         Maps the 0-255 slider value → 0-360 hue and repaints ONLY the
- *         slider-2 pill track.  No full-screen refresh.
+ * @brief  Slider 1 — Rainbow hue picker (VERTICAL).
+ *         Maps the 0-254 slider value → 0-360 hue and repaints ONLY the
+ *         slider-2 pill track.
  */
 static void OnSliderR_Changed(int32_t value)
 {
     atest = (int)value;
 
-    /* 1. Map 0–255 slider range → 0–360 hue degrees */
+    /* Map 0–254 slider range → 0–360 hue degrees */
     g_Slider2_Hue = (uint16_t)((value * 360) / 254);
 
-    /* 2. Repaint only the slider-2 gradient pill — zero flicker */
+    /* Repaint slider-2 gradient pill only — zero flicker */
     GRADIENT_RedrawSlider2Track();
 
-    /* Optional: update status label */
     snprintf(msg, sizeof(msg), "H:%3u", (unsigned)g_Slider2_Hue);
     if (g_label) UGFX_LabelSetText(g_label, msg);
 }
 
 /**
- * @brief  Slider 2 — plain value slider (hue is driven by slider 1).
+ * @brief  Slider 2 — Black → dynamic hue (HORIZONTAL).
  */
 static void OnSliderG_Changed(int32_t value)
 {
@@ -106,7 +99,7 @@ static void OnSliderG_Changed(int32_t value)
 }
 
 /**
- * @brief  Slider 3 — plain value slider.
+ * @brief  Slider 3 — Alpha → Blue (HORIZONTAL).
  */
 static void OnSliderB_Changed(int32_t value)
 {
@@ -120,8 +113,7 @@ static void OnSliderB_Changed(int32_t value)
    ══════════════════════════════════════════════════════════════════════════ */
 
 /**
- * @brief  "OK" / RESET button — resets all three sliders to 0.
- *         Also resets the hue and redraws slider 2's track.
+ * @brief  RESET — resets all three sliders to 0 and restores hue.
  */
 static void OnOkPressed(ugfx_button_t *btn)
 {
@@ -133,7 +125,6 @@ static void OnOkPressed(ugfx_button_t *btn)
     if (g_sliderG) UGFX_SliderSetValue(g_sliderG, 0);
     if (g_sliderB) UGFX_SliderSetValue(g_sliderB, 0);
 
-    /* Reset hue → 0 (red) and repaint slider 2 track */
     g_Slider2_Hue = 0u;
     GRADIENT_RedrawSlider2Track();
 
@@ -141,8 +132,7 @@ static void OnOkPressed(ugfx_button_t *btn)
 }
 
 /**
- * @brief  "TEST" / MID button — sets all sliders to mid-range (100).
- *         Updates hue to mid value and repaints slider 2 track.
+ * @brief  MID — sets all sliders to mid-range (100).
  */
 static void OnTestPressed(ugfx_button_t *btn)
 {
@@ -156,7 +146,6 @@ static void OnTestPressed(ugfx_button_t *btn)
     if (g_sliderG) UGFX_SliderSetValue(g_sliderG, 100);
     if (g_sliderB) UGFX_SliderSetValue(g_sliderB, 100);
 
-    /* Map slider-1 value 100 → hue and repaint */
     g_Slider2_Hue = (uint16_t)((100 * 360) / 255);
     GRADIENT_RedrawSlider2Track();
 
@@ -178,14 +167,12 @@ static void OnTestPresseda(ugfx_button_t *btn)
 
 /**
   * @brief  The application entry point.
-  * @retval int
   */
 int main(void)
 {
     /* USER CODE BEGIN 1 */
     /* USER CODE END 1 */
 
-    /* MCU Configuration ---------------------------------------------------- */
     HAL_Init();
 
     /* USER CODE BEGIN Init */
@@ -201,12 +188,10 @@ int main(void)
 
     /* USER CODE BEGIN 2 */
 
-    /* Deassert both CS lines before anything else */
     HAL_GPIO_WritePin(DISPL_CS_GPIO_Port, DISPL_CS_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(TOUCH_CS_GPIO_Port, TOUCH_CS_Pin, GPIO_PIN_SET);
     HAL_Delay(10);
 
-    /* Bring up display and touch controller */
     ILI9488_Init(&hspi1);
     ILI9488_SetOrientation(ILI9488_ORIENT_LANDSCAPE);
     XPT2046_Init(&hspi1);
@@ -215,106 +200,223 @@ int main(void)
     UGFX_Init();
     UGFX_Begin();
 
-    /* ── Slider 1: Rainbow / Hue picker (horizontal) ─────────────────────
-       User drags this to pick a hue → slider 2 track colour updates live.  */
+    /* ══════════════════════════════════════════════════════════════════════
+       SLIDER 1 — Rainbow / Hue picker  (VERTICAL, left side)
+       Gradient pill: full hue rainbow, top=red → bottom=magenta
+       bg_redraw_fn: GRADIENT_RedrawSlider1Track restores pill after erase
+       knobBitmap:   24×24 diamond bitmap, white tint
+       ══════════════════════════════════════════════════════════════════════ */
+//    ugfx_slider_builder_t *sb = Slider(0, 254, 100);
+//    sb->frame    (sb, 30, 350);
+//    sb->origin   (sb, 12.5, 60);
+//    sb->direction(sb, UGFX_HORIZONTAL);    /* col_track / col_fill are invisible behind the gradient pill,
+//       but set them transparent so if bg_redraw_fn is ever removed
+//       the track at least blends quietly */
+//    sb->colors   (sb, 0x0000u, 0x0000u, 0xFFFFu);
+//    sb->bgRedraw (sb, GRADIENT_RedrawSlider1Track);
+//    sb->knobBitmap(sb, &g_knob_bmp, 1u, 0xFFFFu);
+////    sb->onChanged(sb, OnSliderR_Changed);
+//    g_sliderR = sb->build(sb);
+//
+//    /* ══════════════════════════════════════════════════════════════════════
+//       SLIDER 2 — Black → dynamic hue  (HORIZONTAL)
+//       Gradient pill: black → dark hue → bright hue (driven by slider 1)
+//       bg_redraw_fn: GRADIENT_RedrawSlider2Track restores pill after erase
+//       knobBitmap:   24×24 diamond bitmap, white tint
+//       ══════════════════════════════════════════════════════════════════════ */
+//    ugfx_slider_builder_t *sb1 = Slider(0, 254, 80);
+//    sb1->frame    (sb1, 360, 15);
+//    sb1->origin   (sb1, 125, 60);
+//    sb1->direction(sb1, UGFX_HORIZONTAL);
+//    sb1->colors   (sb1, 0x0000u, 0x0000u, 0xFFFFu);
+//    sb1->bgRedraw (sb1, GRADIENT_RedrawSlider2Track);
+//    sb1->knobBitmap(sb1, &g_knob_bmp, 1u, 0xFFFFu);
+//    sb1->onChanged(sb1, OnSliderG_Changed);
+//    g_sliderG = sb1->build(sb1);
+//
+//    /* ══════════════════════════════════════════════════════════════════════
+//       SLIDER 3 — Checkerboard → Blue  (HORIZONTAL)
+//       Gradient pill: checkerboard → solid blue (alpha illusion)
+//       bg_redraw_fn: GRADIENT_RedrawSlider3Track restores pill after erase
+//       knobBitmap:   24×24 diamond bitmap, white tint
+//       ══════════════════════════════════════════════════════════════════════ */
+//    ugfx_slider_builder_t *sb2 = Slider(0, 254, 160);
+//    sb2->frame    (sb2, 360, 15);
+//    sb2->origin   (sb2, 125, 185);
+//    sb2->direction(sb2, UGFX_HORIZONTAL);
+//    sb2->colors   (sb2, 0x0000u, 0x0000u, 0xFFFFu);
+//    sb2->bgRedraw (sb2, GRADIENT_RedrawSlider3Track);
+//    sb2->knobBitmap(sb2, &g_knob_bmp, 1u, 0xFFFFu);
+//    sb2->onChanged(sb2, OnSliderB_Changed);
+//    g_sliderB = sb2->build(sb2);
+//
+//    /* ── Buttons ─────────────────────────────────────────────────────────── */
+//    ugfx_button_builder_t *bb = Button("OK");
+//    bb->frame (bb, 80, 50);
+//    bb->origin(bb, 300, 270);
+//    bb->onTap (bb, OnOkPressed);
+//    bb->build (bb);
+//
+//    ugfx_button_builder_t *bbb = Button("TEST");
+//    bbb->frame (bbb, 80, 50);
+//    bbb->origin(bbb, 350, 270);
+//    bbb->onTap (bbb, OnTestPressed);
+//    bbb->build (bbb);
+//
+//    ugfx_button_builder_t *bbb1 = Button("a++");
+//    bbb1->frame (bbb1, 50, 50);
+//    bbb1->origin(bbb1, 430, 270);
+//    bbb1->onTap (bbb1, OnTestPresseda);
+//    bbb1->build (bbb1);
+//
+//    /* ── Label (uncomment to enable) ────────────────────────────────────── */
+//    /* ugfx_label_builder_t *lb = Label("Ready");
+//       lb->origin(lb, 30, 280);
+//       lb->size  (lb, 2);
+//       g_label = lb->build(lb); */
+//
+//    /* ── Initial draw sequence ───────────────────────────────────────────
+//     *
+//     *  ORDER MATTERS:
+//     *    1. FillScreen     — blank slate
+//     *    2. DrawStaticSliderImage — paints background gradient + all three
+//     *                        gradient pills (rainbow, black→hue, checker→blue)
+//     *    3. UGFX_Commit    — draws buttons and slider knobs ON TOP of the pills
+//     *
+//     *  After this point every UGFX_SliderDraw() call will:
+//     *    a. Erase only the knob bounding square
+//     *    b. Call bg_redraw_fn() to restore the pill underneath
+//     *    c. Draw the bitmap knob on top
+//     *  producing zero ghost pixels and a gradient always visible behind knobs.
+//     ─────────────────────────────────────────────────────────────────────── */
+//
+//    /* Boot hue matches the initial value of slider 1 (100 out of 254) */
+//    g_Slider2_Hue = (uint16_t)((100 * 360) / 254);
+//
+//    ILI9488_FillScreen(0x0000u);
+//
+//    DrawStaticSliderImage();   /* background gradient + all three pills     */
+//
+//    UGFX_Commit();             /* buttons + knobs on top                    */
+//    GRADIENT_RedrawSlider1Track();
+//    GRADIENT_RedrawSlider2Track();
+//    GRADIENT_RedrawSlider3Track();
+//    /* USER CODE END 2 */
+
+
+
+
+        /* ══════════════════════════════════════════════════════════════════════
+           SLIDER 1 — Rainbow / Hue picker  (HORIZONTAL, top band)
+           origin(100, 35), frame(360, 60)
+           Maps 0-254 → hue 0-360, drives slider 2 gradient colour
+//           ══════════════════════════════════════════════════════════════════════ */
+//        ugfx_slider_builder_t *sb = Slider(0, 254, 100);
+//        sb->frame    (sb, 360, 60);
+//        sb->origin   (sb, 100, 35);
+//        sb->direction(sb, UGFX_HORIZONTAL);
+////        sb->colors   (sb, 0x0000u, 0x0000u, 0x0000u);
+//        sb->bgRedraw (sb, GRADIENT_RedrawSlider1Track);
+//        sb->knobBitmap(sb, &g_knob_bmp, 1u, 0xFFFFu);
+//        sb->onChanged(sb, OnSliderR_Changed);
+//        g_sliderR = sb->build(sb);
+//
+//        /* ══════════════════════════════════════════════════════════════════════
+//           SLIDER 2 — Black → dynamic hue  (HORIZONTAL, middle band)
+//           origin(100, 140), frame(360, 60)
+//           ══════════════════════════════════════════════════════════════════════ */
+//        ugfx_slider_builder_t *sb1 = Slider(0, 254, 80);
+//        sb1->frame    (sb1, 360, 60);
+//        sb1->origin   (sb1, 100, 140);
+//        sb1->direction(sb1, UGFX_HORIZONTAL);
+//        sb1->colors   (sb1, 0x0000u, 0x0000u, 0xFFFFu);
+//        sb1->bgRedraw (sb1, GRADIENT_RedrawSlider2Track);
+//        sb1->knobBitmap(sb1, &g_knob_bmp, 1u, 0xFFFFu);
+//        sb1->onChanged(sb1, OnSliderG_Changed);
+//        g_sliderG = sb1->build(sb1);
+//
+//        /* ══════════════════════════════════════════════════════════════════════
+//           SLIDER 3 — Alpha → Blue  (VERTICAL, left column)
+//           origin(25, 35), frame(60, 250)
+//           ══════════════════════════════════════════════════════════════════════ */
+//        ugfx_slider_builder_t *sb2 = Slider(0, 254, 160);
+//        sb2->frame    (sb2, 60, 250);
+//        sb2->origin   (sb2, 25, 35);
+//        sb2->direction(sb2, UGFX_VERTICAL);
+//        sb2->colors   (sb2, 0x0000u, 0x0000u, 0xFFFFu);
+//        sb2->bgRedraw (sb2, GRADIENT_RedrawSlider3Track);
+//        sb2->knobBitmap(sb2, &g_knob_bmp, 1u, 0xFFFFu);
+//        sb2->onChanged(sb2, OnSliderB_Changed);
+//        g_sliderB = sb2->build(sb2);
+//
+//        /* ── Boot hue matches slider 1 initial value (100 out of 254) ───── */
+//        g_Slider2_Hue = (uint16_t)((100 * 360) / 254);
+//
+//        ugfx_button_builder_t *bbb1 = Button("a++");
+//           bbb1->frame (bbb1, 50, 50);
+//           bbb1->origin(bbb1, 430, 270);
+//           bbb1->onTap (bbb1, OnTestPresseda);
+//           bbb1->build (bbb1);
+//
+//        ILI9488_FillScreen(0x0000u);
+//        DrawStaticSliderImage();
+//        UGFX_Commit();
+
+
     ugfx_slider_builder_t *sb = Slider(0, 254, 100);
-    sb->frame    (sb, 30, 150);
-    sb->origin   (sb, 75, 40);
-    sb->direction(sb, UGFX_VERTICAL);
-    sb->onChanged(sb, OnSliderG_Changed);
-    g_sliderR = sb->build(sb);
+        sb->frame    (sb, 360, 60);
+        sb->origin   (sb, 100, 35);
+        sb->direction(sb, UGFX_HORIZONTAL);
+        sb->colors   (sb, UGFX_COL_TRANSPARENT, UGFX_COL_TRANSPARENT, 0xFFFFu);
+        sb->bgRedraw (sb, GRADIENT_RedrawSlider1Track);
+        sb->knobBitmap(sb, &g_knob_bmp, 1u, 0xFFFFu);
+        sb->onChanged(sb, OnSliderR_Changed);
+        g_sliderR = sb->build(sb);
 
-    /* ── Slider 2: value slider (horizontal) ────────────────────────────── */
-    ugfx_slider_builder_t *sb1 = Slider(0, 254, 80);
-    sb1->frame    (sb1, 360, 15);
-    sb1->origin   (sb1, 125, 60);
-    sb1->direction(sb1, UGFX_HORIZONTAL);
-    sb1->onChanged(sb1, OnSliderR_Changed);
-    g_sliderG = sb1->build(sb1);
+        /* ══════════════════════════════════════════════════════════════════════
+           SLIDER 2 — Black → dynamic hue  (HORIZONTAL, middle band)
+           Pill: origin(100,140), frame(360,60) — matches gradient.c S2_*
+           ══════════════════════════════════════════════════════════════════════ */
+        ugfx_slider_builder_t *sb1 = Slider(0, 254, 80);
+        sb1->frame    (sb1, 360, 60);
+        sb1->origin   (sb1, 100, 140);
+        sb1->direction(sb1, UGFX_HORIZONTAL);
+        sb1->colors   (sb1, UGFX_COL_TRANSPARENT, UGFX_COL_TRANSPARENT, 0xFFFFu);
+        sb1->bgRedraw (sb1, GRADIENT_RedrawSlider2Track);
+        sb1->knobBitmap(sb1, &g_knob_bmp, 1u, 0xFFFFu);
+        sb1->onChanged(sb1, OnSliderG_Changed);
+        g_sliderG = sb1->build(sb1);
 
-    /* ── Slider 3: value slider (horizontal) ────────────────────────────── */
-    ugfx_slider_builder_t *sb2 = Slider(0, 254, 160);
-    sb2->frame    (sb2, 360, 15);
-    sb2->origin   (sb2, 125, 185);
-    sb2->direction(sb2, UGFX_HORIZONTAL);
-    sb2->onChanged(sb2, OnSliderB_Changed);
-    g_sliderB = sb2->build(sb2);
+        /* ══════════════════════════════════════════════════════════════════════
+           SLIDER 3 — Alpha → Blue  (VERTICAL, left column)
+           Pill: origin(25,35), frame(60,250) — matches gradient.c S3_*
+           ══════════════════════════════════════════════════════════════════════ */
+        ugfx_slider_builder_t *sb2 = Slider(0, 254, 160);
+        sb2->frame    (sb2, 60, 250);
+        sb2->origin   (sb2, 25, 35);
+        sb2->direction(sb2, UGFX_VERTICAL);
+        sb2->colors   (sb2, UGFX_COL_TRANSPARENT, UGFX_COL_TRANSPARENT, 0xFFFFu);
+        sb2->bgRedraw (sb2, GRADIENT_RedrawSlider3Track);
+        sb2->knobBitmap(sb2, &g_knob_bmp, 1u, 0xFFFFu);
+        sb2->onChanged(sb2, OnSliderB_Changed);
+        g_sliderB = sb2->build(sb2);
 
-    /* ── Button: RESET ───────────────────────────────────────────────────── */
-    ugfx_button_builder_t *bb = Button("OK");
-    bb->frame (bb, 80, 50);
-    bb->origin(bb, 300, 270);
-    bb->onTap (bb, OnOkPressed);
-    bb->build (bb);
+        /* ── Button ──────────────────────────────────────────────────────────── */
+        ugfx_button_builder_t *bbb1 = Button("a++");
+        bbb1->frame (bbb1, 50, 50);
+        bbb1->origin(bbb1, 430, 270);
+        bbb1->onTap (bbb1, OnTestPresseda);
+        bbb1->build (bbb1);
 
-    /* ── Button: MID ─────────────────────────────────────────────────────── */
-    ugfx_button_builder_t *bbb = Button("TEST");
-    bbb->frame (bbb, 80, 50);
-    bbb->origin(bbb, 350, 270);
-    bbb->onTap (bbb, OnTestPressed);
-    bbb->build (bbb);
+        /* ── Boot hue matches slider 1 initial value (100/254) ──────────────── */
+        g_Slider2_Hue = (uint16_t)((100 * 360) / 254);
 
-    /* ── Button: a++ ─────────────────────────────────────────────────────── */
-    ugfx_button_builder_t *bbb1 = Button("a++");
-    bbb1->frame (bbb1, 50, 50);
-    bbb1->origin(bbb1, 430, 270);
-    bbb1->onTap (bbb1, OnTestPresseda);
-    bbb1->build (bbb1);
+        ILI9488_FillScreen(0x0000u);
+        DrawStaticSliderImage();   /* background gradient + all three pills      */
+        UGFX_Commit();
 
-    /* ── Label: status line (uncomment to enable) ────────────────────────── */
-    /* ugfx_label_builder_t *lb = Label("Ready");
-       lb->origin(lb, 30, 280);
-       lb->size  (lb, 2);
-       g_label = lb->build(lb); */
 
-    /* ── Initial draw ────────────────────────────────────────────────────── */
-
-    /*
-     * Boot hue — matches the initial value of slider 1 (100 out of 255).
-     * Keep this in sync with Slider(0, 255, <initial>) above.
-     */
-    g_Slider2_Hue = (uint16_t)((100 * 360) / 255);
-
-    ILI9488_FillScreen(0x0000u);
-
-    /*
-     * DrawStaticSliderImage() paints:
-     *   1. A top-to-bottom dark gradient background
-     *   2. Three pill-shaped gradient slider track backgrounds:
-     *        Pill 1 — full hue rainbow
-     *        Pill 2 — black → current hue colour (tracks slider 1)
-     *        Pill 3 — checkerboard → blue
-     *
-     * Called BEFORE UGFX_Commit() so the widget knobs are drawn on top.
-     */
-    DrawStaticSliderImage();
-
-    /*
-     * UGFX_Commit() draws all widget knobs and buttons on top of the
-     * gradient background painted above.
-     */
-    UGFX_Commit();
-
-    /*
-     * NOTE ON INTERACTION:
-     * When the µGFX engine erases a slider widget before redrawing its knob
-     * it fills the bounding box with UGFX_COL_BG (0x0000 = black).  The
-     * gradient track pills are intentionally drawn to sit BEHIND the ugfx
-     * sliders, so after the first knob drag you will see the pill replaced by
-     * the engine's erase colour in the area under the knob.
-     *
-     * To keep the pill visible after knob movement you can:
-     *   a) Match UGFX_COL_BG to your background colour (simplest).
-     *   b) Call GRADIENT_RedrawSlider2Track() / DrawStaticSliderImage()
-     *      from within the on_changed callbacks after UGFX_SliderDraw().
-     *
-     * Currently the pill tracks are decorative; the ugfx sliders provide the
-     * actual interactive knobs.
-     */
-
-    /* USER CODE END 2 */
-
-    /* Infinite loop -------------------------------------------------------- */
+    /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
     {
@@ -325,12 +427,10 @@ int main(void)
 
         /* USER CODE END 3 */
     }
-    /* USER CODE END 3 */
 }
 
 /**
   * @brief System Clock Configuration
-  * @retval None
   */
 void SystemClock_Config(void)
 {
@@ -349,13 +449,9 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLN            = 180;
     RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ            = 4;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        Error_Handler();
-    }
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) { Error_Handler(); }
 
-    if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
-        Error_Handler();
-    }
+    if (HAL_PWREx_EnableOverDrive() != HAL_OK) { Error_Handler(); }
 
     RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                      | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
@@ -363,24 +459,14 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
-        Error_Handler();
-    }
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) { Error_Handler(); }
 }
 
 /**
-  * @brief SPI1 Initialization Function
-  * @retval None
+  * @brief SPI1 Initialization
   */
 static void MX_SPI1_Init(void)
 {
-    /* USER CODE BEGIN SPI1_Init 0 */
-    /* USER CODE END SPI1_Init 0 */
-
-    /* USER CODE BEGIN SPI1_Init 1 */
-    /* USER CODE END SPI1_Init 1 */
-
     hspi1.Instance               = SPI1;
     hspi1.Init.Mode              = SPI_MODE_MASTER;
     hspi1.Init.Direction         = SPI_DIRECTION_2LINES;
@@ -393,25 +479,15 @@ static void MX_SPI1_Init(void)
     hspi1.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi1.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     hspi1.Init.CRCPolynomial     = 10;
-
-    if (HAL_SPI_Init(&hspi1) != HAL_OK) {
-        Error_Handler();
-    }
-
-    /* USER CODE BEGIN SPI1_Init 2 */
-    /* USER CODE END SPI1_Init 2 */
+    if (HAL_SPI_Init(&hspi1) != HAL_OK) { Error_Handler(); }
 }
 
 /**
-  * @brief GPIO Initialization Function
-  * @retval None
+  * @brief GPIO Initialization
   */
 static void MX_GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    /* USER CODE BEGIN MX_GPIO_Init_1 */
-    /* USER CODE END MX_GPIO_Init_1 */
 
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOF_CLK_ENABLE();
@@ -443,9 +519,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(TOUCH_INT_GPIO_Port, &GPIO_InitStruct);
-
-    /* USER CODE BEGIN MX_GPIO_Init_2 */
-    /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -456,22 +529,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 }
 /* USER CODE END 4 */
 
-/**
-  * @brief  Error handler.
-  * @retval None
-  */
 void Error_Handler(void)
 {
-    /* USER CODE BEGIN Error_Handler_Debug */
     __disable_irq();
     while (1) { }
-    /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef USE_FULL_ASSERT
-void assert_failed(uint8_t *file, uint32_t line)
-{
-    /* USER CODE BEGIN 6 */
-    /* USER CODE END 6 */
-}
-#endif /* USE_FULL_ASSERT */
+void assert_failed(uint8_t *file, uint32_t line) { }
+#endif
