@@ -364,8 +364,8 @@ int main(void)
 
 
     ugfx_slider_builder_t *sb = Slider(0, 254, 100);
-        sb->frame    (sb, 360, 60);
-        sb->origin   (sb, 100, 35);
+        sb->frame    (sb, 370, 60);
+        sb->origin   (sb, 95, 35);
         sb->direction(sb, UGFX_HORIZONTAL);
         sb->colors   (sb, UGFX_COL_TRANSPARENT, UGFX_COL_TRANSPARENT, 0xFFFFu);
         sb->bgRedraw (sb, GRADIENT_RedrawSlider1Track);

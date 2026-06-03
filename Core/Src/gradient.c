@@ -227,23 +227,34 @@ static void DrawRoundRectOutline(uint16_t x, uint16_t y,
  * @brief  Slider 1 — Full hue rainbow.
  *         Vertical pill: top = red → bottom = magenta (full spectrum).
  */
+//static uint16_t ColFn_Rainbow(uint16_t i, uint16_t total)
+//{
+//    static const uint16_t stops[7] = {
+//        0xF800u,   /* red     */
+//        0xFD20u,   /* orange  */
+//        0xFFE0u,   /* yellow  */
+//        0x07E0u,   /* green   */
+//        0x07FFu,   /* cyan    */
+//        0x001Fu,   /* blue    */
+//        0xF81Fu,   /* magenta */
+//    };
+//    uint16_t seg_w = total / 6u;
+//    if (seg_w == 0u) seg_w = 1u;
+//    uint16_t seg = i / seg_w;
+//    if (seg >= 6u) seg = 5u;
+//    uint16_t t = (uint16_t)(((uint32_t)(i - seg * seg_w) * 256u) / seg_w);
+//    return LerpRGB565(stops[seg], stops[seg + 1u], t);
+//}
+
 static uint16_t ColFn_Rainbow(uint16_t i, uint16_t total)
 {
-    static const uint16_t stops[7] = {
-        0xF800u,   /* red     */
-        0xFD20u,   /* orange  */
-        0xFFE0u,   /* yellow  */
-        0x07E0u,   /* green   */
-        0x07FFu,   /* cyan    */
-        0x001Fu,   /* blue    */
-        0xF81Fu,   /* magenta */
-    };
-    uint16_t seg_w = total / 6u;
-    if (seg_w == 0u) seg_w = 1u;
-    uint16_t seg = i / seg_w;
-    if (seg >= 6u) seg = 5u;
-    uint16_t t = (uint16_t)(((uint32_t)(i - seg * seg_w) * 256u) / seg_w);
-    return LerpRGB565(stops[seg], stops[seg + 1u], t);
+    if (total <= 1u)
+        return 0xF800u;   /* red */
+
+    uint16_t hue =
+        (uint16_t)(((uint32_t)i * 360u) / (total - 1u));
+
+    return HueSVtoRGB565(hue, 255u, 255u);
 }
 
 /**
