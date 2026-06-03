@@ -175,7 +175,7 @@ void UGFX_SliderDraw(ugfx_slider_t *s)
         uint16_t track_len    = s->h - 2u * UGFX_KNOB_R;
 
         /* Full track (dark) */
-        ILI9488_FillRect(track_x, track_top, UGFX_TRACK_H, track_len, s->col_track);
+//        ILI9488_FillRect(track_x, track_top, UGFX_TRACK_H, track_len, s->col_track);
 
         /* Fill: from knob downward to bottom of track (value represented below knob) */
         uint16_t fill_top = py + knob_pos;
